@@ -1,0 +1,1654 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Synapse Health - Portal Integrado (Oracle + Módulo Balance)</title>
+    <!-- Tailwind CSS para um design moderno e elegante -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome para ícones hospitalares e de UI -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Configuração de tema escuro premium da Oracle Cloud com Super Escalamento de Fontes -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        oracle: {
+                            dark: '#0B111E',
+                            card: '#161F30',
+                            accent: '#312E81',
+                            blue: '#3B82F6',
+                            green: '#10B981',
+                            yellow: '#F59E0B',
+                            red: '#EF4444',
+                            border: '#1E293B',
+                            textMuted: '#94A3B8',
+                            teal: '#06B6D4'
+                        }
+                    },
+                    fontSize: {
+                        '2xs': ['16px', '22px'],
+                        'xs': ['17px', '24px'],
+                        'sm': ['20px', '28px'],
+                        'base': ['22px', '30px'],
+                        'lg': ['25px', '34px'],
+                        'xl': ['28px', '38px'],
+                        '2xl': ['32px', '42px'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0B111E;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #1E293B;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #3B82F6;
+        }
+        .tab-transition {
+            transition: all 0.25s ease-in-out;
+        }
+        .glow-hover:hover {
+            filter: drop-shadow(0 0 10px rgba(59, 130, 246, 0.8));
+        }
+        .pulse-slow {
+            animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: .4; }
+        }
+    </style>
+</head>
+<body class="bg-oracle-dark text-slate-100 font-sans min-h-screen flex flex-col selection:bg-oracle-blue selection:text-white">
+
+    <!-- FILTROS DE GLOW NEON GLOBAIS -->
+    <svg class="hidden" width="0" height="0">
+        <defs>
+            <filter id="glow-neon" x="-20%" y="-20%" width="140%" height="140%">
+                <feGaussianBlur stdDeviation="3.5" result="blur" />
+                <feComposite in="SourceGraphic" in2="blur" operator="over" />
+            </filter>
+            <filter id="glow-magenta" x="-30%" y="-30%" width="160%" height="160%">
+                <feGaussianBlur stdDeviation="5" result="blur" />
+                <feComposite in="SourceGraphic" in2="blur" operator="over" />
+            </filter>
+        </defs>
+    </svg>
+
+    <!-- CABEÇALHO DA SOLUÇÃO (Mantendo layout e dados originais) -->
+    <header class="bg-oracle-card border-b border-oracle-border px-6 py-4 flex flex-col md:flex-row items-center justify-between gap-4 sticky top-0 z-40">
+        <div class="flex items-center gap-4">
+            <!-- LOGOTIPO DA FENDA SINÁPTICA REAL EM FORMATO QUADRADO (image_780524.jpg) -->
+            <div class="p-1 bg-[#011627] border border-slate-800 rounded-xl shadow-lg shadow-black/40 flex items-center justify-center w-14 h-14">
+                <svg class="w-full h-full" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <!-- Gradientes das ondas azul/escuro e ciano (Ribbon Superior) -->
+                        <linearGradient id="top-dark" x1="0%" y1="0%" x2="100%" y2="0%">
+                            <stop offset="0%" stop-color="#030812" />
+                            <stop offset="50%" stop-color="#005f73" />
+                            <stop offset="100%" stop-color="#030812" />
+                        </linearGradient>
+                        <linearGradient id="top-mid" x1="0%" y1="0%" x2="100%" y2="0%">
+                            <stop offset="0%" stop-color="#011627" />
+                            <stop offset="50%" stop-color="#00b4d8" />
+                            <stop offset="100%" stop-color="#011627" />
+                        </linearGradient>
+                        <linearGradient id="top-light" x1="0%" y1="0%" x2="100%" y2="0%">
+                            <stop offset="0%" stop-color="#011627" stop-opacity="0" />
+                            <stop offset="50%" stop-color="#00f2ff" />
+                            <stop offset="100%" stop-color="#011627" stop-opacity="0" />
+                        </linearGradient>
+
+                        <!-- Gradientes das ondas verde-água e ciano (Ribbon Inferior) -->
+                        <linearGradient id="bottom-dark" x1="0%" y1="0%" x2="100%" y2="0%">
+                            <stop offset="0%" stop-color="#030812" />
+                            <stop offset="50%" stop-color="#0a9396" />
+                            <stop offset="100%" stop-color="#030812" />
+                        </linearGradient>
+                        <linearGradient id="bottom-mid" x1="0%" y1="0%" x2="100%" y2="0%">
+                            <stop offset="0%" stop-color="#011627" />
+                            <stop offset="50%" stop-color="#2ec4b6" />
+                            <stop offset="100%" stop-color="#011627" />
+                        </linearGradient>
+                        <linearGradient id="bottom-light" x1="0%" y1="0%" x2="100%" y2="0%">
+                            <stop offset="0%" stop-color="#011627" stop-opacity="0" />
+                            <stop offset="50%" stop-color="#48cae4" />
+                            <stop offset="100%" stop-color="#011627" stop-opacity="0" />
+                        </linearGradient>
+
+                        <!-- Radial Gradient para o Pulso de Luz Central Magenta (Fenda Sináptica) -->
+                        <radialGradient id="glow-magenta-radial" cx="50%" cy="50%" r="50%">
+                            <stop offset="0%" stop-color="#FF007F" stop-opacity="1"/>
+                            <stop offset="30%" stop-color="#FF007F" stop-opacity="0.8"/>
+                            <stop offset="100%" stop-color="#FF007F" stop-opacity="0"/>
+                        </radialGradient>
+                    </defs>
+
+                    <!-- Ondas Superiores (Efeito Ribbon 3D) -->
+                    <path d="M 5 20 Q 50 45 95 20 L 95 38 Q 50 47 5 38 Z" fill="url(#top-dark)" opacity="0.4"/>
+                    <path d="M 5 25 Q 50 46 95 25 L 95 35 Q 50 47 5 35 Z" fill="url(#top-mid)" opacity="0.8"/>
+                    <path d="M 5 28 Q 50 47 95 28 L 95 32 Q 50 47 5 32 Z" fill="url(#top-light)"/>
+
+                    <!-- Ondas Inferiores (Efeito Ribbon 3D) -->
+                    <path d="M 5 80 Q 50 55 95 80 L 95 62 Q 50 53 5 62 Z" fill="url(#bottom-dark)" opacity="0.4"/>
+                    <path d="M 5 75 Q 50 54 95 75 L 95 65 Q 50 53 5 65 Z" fill="url(#bottom-mid)" opacity="0.8"/>
+                    <path d="M 5 72 Q 50 53 95 72 L 95 68 Q 50 53 5 68 Z" fill="url(#bottom-light)"/>
+
+                    <!-- Pulso de Sinal do Centro (Frequência de Áudio/Sinal) -->
+                    <g stroke="#00F2FF" stroke-width="0.8" stroke-linecap="round" opacity="0.8">
+                        <line x1="32" y1="48" x2="32" y2="52" />
+                        <line x1="35" y1="47" x2="35" y2="53" />
+                        <line x1="38" y1="45" x2="38" y2="55" />
+                        <line x1="41" y1="40" x2="41" y2="60" />
+                        <line x1="44" y1="32" x2="44" y2="68" />
+                        <line x1="47" y1="20" x2="47" y2="80" stroke="#00b4d8" />
+                        <line x1="50" y1="10" x2="50" y2="90" stroke="#FFFFFF" filter="url(#glow-neon)" stroke-width="1.2" />
+                        <!-- Barra Central Dominante -->
+                        <line x1="53" y1="20" x2="53" y2="80" stroke="#2ec4b6" stroke-width="1.2" />
+                        <line x1="56" y1="32" x2="56" y2="68" stroke="#2ec4b6" />
+                        <line x1="59" y1="40" x2="59" y2="60" />
+                        <line x1="62" y1="45" x2="62" y2="55" />
+                        <line x1="65" y1="47" x2="65" y2="53" />
+                        <line x1="68" y1="48" x2="68" y2="52" />
+                    </g>
+
+                    <!-- Pulso Luminoso Magenta no Centro (Glow Fenda Sináptica) -->
+                    <circle cx="50" cy="50" r="16" fill="url(#glow-magenta-radial)" class="pulse-slow"/>
+                    <circle cx="50" cy="50" r="3.5" fill="#FFFFFF"/>
+                </svg>
+            </div>
+            <div>
+                <div class="flex items-center gap-2">
+                    <span class="text-xs font-semibold uppercase tracking-wider text-oracle-green px-2 py-0.5 rounded-full bg-emerald-950/20 border border-emerald-500/20 flex items-center gap-1.5">
+                        <span class="w-1.5 h-1.5 rounded-full bg-oracle-green animate-pulse"></span>
+                        Servidor OCI: Ativo
+                    </span>
+                </div>
+                <h1 class="text-xl font-bold tracking-tight mt-0.5">Synapse <span class="bg-gradient-to-r from-blue-400 to-indigo-400 bg-clip-text text-transparent font-extrabold">Health Portal</span></h1>
+            </div>
+        </div>
+
+        <!-- SELETOR DE ABAS PRINCIPAIS (Integração das três frentes) -->
+        <div class="flex bg-oracle-dark/80 p-1.5 rounded-xl border border-oracle-border gap-1 flex-wrap justify-center">
+            <button onclick="switchTab('jornada-tab')" id="btn-jornada-tab" class="px-3.5 py-2 text-xs font-bold rounded-lg flex items-center gap-2 tab-transition text-oracle-textMuted hover:text-white">
+                <i class="fa-solid fa-route"></i>
+                Camada 1: Monitoramento & Jornada
+            </button>
+            <button onclick="switchTab('oracle-tab')" id="btn-oracle-tab" class="px-3.5 py-2 text-xs font-bold rounded-lg flex items-center gap-2 tab-transition text-oracle-textMuted hover:text-white">
+                <i class="fa-solid fa-chart-line"></i>
+                Camada 2: Análise Sazonal & Select AI
+            </button>
+            <button onclick="switchTab('balance-tab')" id="btn-balance-tab" class="px-3.5 py-2 text-xs font-bold rounded-lg flex items-center gap-2 tab-transition text-oracle-textMuted hover:text-white">
+                <i class="fa-solid fa-scale-balanced"></i>
+                Camada 3: Alocação Módulo Balance
+            </button>
+        </div>
+
+        <!-- Estatísticas Rápidas Integradas -->
+        <div class="flex items-center gap-4 text-sm flex-wrap">
+            <div class="bg-oracle-dark/50 border border-oracle-border rounded-lg px-3.5 py-1.5 flex items-center gap-2">
+                <div class="w-2 h-2 rounded-full bg-oracle-red animate-ping"></div>
+                <span class="text-oracle-textMuted text-xs">Gargalos:</span>
+                <span class="font-bold text-oracle-red text-xs" id="gargalo-count">2 Setores</span>
+            </div>
+            <div class="bg-oracle-dark/50 border border-oracle-border rounded-lg px-3.5 py-1.5 flex items-center gap-2">
+                <i class="fa-solid fa-check-double text-oracle-green text-xs"></i>
+                <span class="text-oracle-textMuted text-xs">Conformidade:</span>
+                <span class="font-bold text-oracle-green text-xs" id="conformity-rate">85%</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- CONTEÚDO DAS ABAS -->
+    <main class="flex-grow p-6 max-w-[1750px] w-full mx-auto">
+        
+        <!-- ================= TAB 1: MONITORAMENTO & JORNADA ATIVA ================= -->
+        <div id="jornada-tab" class="space-y-6 hidden">
+            <!-- Linha superior de KPIs -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="bg-oracle-card border border-oracle-border rounded-xl p-5 flex items-center gap-4 shadow-lg">
+                    <div class="w-12 h-12 rounded-xl bg-oracle-blue/10 flex items-center justify-center text-oracle-blue text-xl">
+                        <i class="fa-solid fa-clock-rotate-left"></i>
+                    </div>
+                    <div>
+                        <span class="text-xs text-oracle-textMuted uppercase font-bold tracking-wider block">Tempo de Jornada</span>
+                        <span class="text-xl font-bold text-slate-100 flex items-baseline gap-2 font-mono">42 min <span class="text-xs text-oracle-green font-normal">(-12%)</span></span>
+                    </div>
+                </div>
+                <div class="bg-oracle-card border border-oracle-border rounded-xl p-5 flex items-center gap-4 shadow-lg">
+                    <div class="w-12 h-12 rounded-xl bg-oracle-yellow/10 flex items-center justify-center text-oracle-yellow text-xl">
+                        <i class="fa-solid fa-hospital"></i>
+                    </div>
+                    <div>
+                        <span class="text-xs text-oracle-textMuted uppercase font-bold tracking-wider block">Taxa de Ocupação</span>
+                        <span class="text-xl font-bold text-slate-100 font-mono" id="total-occupancy">92%</span>
+                    </div>
+                </div>
+                <div class="bg-oracle-card border border-oracle-border rounded-xl p-5 flex items-center gap-4 shadow-lg">
+                    <div class="w-12 h-12 rounded-xl bg-oracle-green/10 flex items-center justify-center text-oracle-green text-xl">
+                        <i class="fa-solid fa-person-circle-check"></i>
+                    </div>
+                    <div>
+                        <span class="text-xs text-oracle-textMuted uppercase font-bold tracking-wider block">Capacidade Pronta</span>
+                        <span class="text-xl font-bold text-slate-100 flex items-baseline gap-2 font-mono">89% <span class="text-xs text-oracle-green font-normal">Estável</span></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pipeline de Jornada Ativa -->
+            <div class="bg-oracle-card border border-oracle-border rounded-2xl p-6 shadow-xl">
+                <div class="border-b border-oracle-border pb-3 mb-5">
+                    <h3 class="text-sm font-bold uppercase tracking-wider text-oracle-blue flex items-center gap-2">
+                        <i class="fa-solid fa-route"></i> Pipeline de Jornada Ativa do Paciente
+                    </h3>
+                    <p class="text-xs text-oracle-textMuted">Rastreamento de gargalos em cada etapa do fluxo assistencial.</p>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-4 gap-4 mt-6">
+                    <div class="bg-oracle-dark/40 border border-oracle-border rounded-xl p-4 text-center relative border-l-4 border-l-oracle-green">
+                        <span class="absolute top-2 right-2 text-xs font-mono text-oracle-green">Fluxo Normal</span>
+                        <div class="w-8 h-8 rounded-full bg-oracle-green/10 text-oracle-green flex items-center justify-center mx-auto mb-2 text-xs font-bold font-mono">1</div>
+                        <h4 class="text-xs font-bold text-slate-200">Triagem & Acolhimento</h4>
+                        <p class="text-xs text-oracle-textMuted mt-1">Tempo Médio: <strong class="text-slate-300">8 min</strong></p>
+                    </div>
+
+                    <div class="bg-oracle-dark/40 border border-oracle-border rounded-xl p-4 text-center relative border-l-4 border-l-oracle-green">
+                        <span class="absolute top-2 right-2 text-xs font-mono text-oracle-green">Fluxo Normal</span>
+                        <div class="w-8 h-8 rounded-full bg-oracle-green/10 text-oracle-green flex items-center justify-center mx-auto mb-2 text-xs font-bold font-mono">2</div>
+                        <h4 class="text-xs font-bold text-slate-200">Atendimento Médico</h4>
+                        <p class="text-xs text-oracle-textMuted mt-1">Tempo Médio: <strong class="text-slate-300">18 min</strong></p>
+                    </div>
+
+                    <div class="bg-oracle-dark/40 border border-oracle-red/30 rounded-xl p-4 text-center relative border-l-4 border-l-oracle-red">
+                        <span class="absolute top-2 right-2 text-xs font-mono text-oracle-red animate-pulse">Gargalo</span>
+                        <div class="w-8 h-8 rounded-full bg-oracle-red/10 text-oracle-red flex items-center justify-center mx-auto mb-2 text-xs font-bold font-mono">3</div>
+                        <h4 class="text-xs font-bold text-slate-200">Alocação de Leitos</h4>
+                        <p class="text-xs text-oracle-textMuted mt-1">Tempo Médio: <strong class="text-oracle-red">120 min</strong></p>
+                    </div>
+
+                    <div class="bg-oracle-dark/40 border border-oracle-border rounded-xl p-4 text-center relative border-l-4 border-l-oracle-blue">
+                        <span class="absolute top-2 right-2 text-xs font-mono text-oracle-blue font-bold">OK</span>
+                        <div class="w-8 h-8 rounded-full bg-oracle-blue/10 text-oracle-blue flex items-center justify-center mx-auto mb-2 text-xs font-bold font-mono">4</div>
+                        <h4 class="text-xs font-bold text-slate-200">Alta & Desospitalização</h4>
+                        <p class="text-xs text-oracle-textMuted mt-1">Tempo Médio: <strong class="text-slate-300">30 min</strong></p>
+                    </div>
+                </div>
+
+                <div class="mt-6 bg-oracle-dark/30 border border-oracle-border rounded-xl p-4 flex justify-between items-center text-xs">
+                    <span class="text-slate-300 flex items-center gap-2">
+                        <i class="fa-solid fa-triangle-exclamation text-oracle-red"></i> 
+                        A etapa de alocação apresenta gargalo. Use o Módulo Balance para otimizar as escalas.
+                    </span>
+                    <button onclick="switchTab('balance-tab')" class="text-oracle-blue hover:underline font-bold flex items-center gap-1">
+                        Resolver Alocações <i class="fa-solid fa-chevron-right text-[10px]"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Visão Consolidada de Prontidão de Leitos & Governança -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <div class="lg:col-span-7 bg-oracle-card border border-oracle-border rounded-2xl p-6 shadow-xl flex flex-col justify-between">
+                    <div>
+                        <div class="flex justify-between items-center border-b border-oracle-border pb-3 mb-4">
+                            <h3 class="text-sm font-bold uppercase tracking-wider text-slate-100 flex items-center gap-2">
+                                <i class="fa-solid fa-hospital-user text-oracle-blue"></i> Visão Consolidada de Prontidão de Leitos
+                            </h3>
+                            <span class="text-xs font-mono text-oracle-teal bg-oracle-teal/10 px-2.5 py-0.5 rounded-full border border-oracle-teal/20">DADOS DE CAPACIDADE</span>
+                        </div>
+                        <span class="text-xs font-bold text-oracle-textMuted uppercase tracking-wider block mb-4">Distribuição da Capacidade Instalada</span>
+                        
+                        <div class="space-y-3">
+                            <div class="bg-oracle-dark/40 border border-oracle-border rounded-xl p-3.5 flex items-center justify-between">
+                                <span class="text-xs text-slate-200">UTI Adulto:</span>
+                                <span class="text-xs font-bold text-oracle-red font-mono" id="tab1-uti-cap">4 / 4 Leitos Ativos</span>
+                            </div>
+                            <div class="bg-oracle-dark/40 border border-oracle-border rounded-xl p-3.5 flex items-center justify-between">
+                                <span class="text-xs text-slate-200">Pediatria Clinica:</span>
+                                <span class="text-xs font-bold text-oracle-yellow font-mono" id="tab1-ped-cap">4 / 4 Leitos Ativos</span>
+                            </div>
+                            <div class="bg-oracle-dark/40 border border-oracle-border rounded-xl p-3.5 flex items-center justify-between">
+                                <span class="text-xs text-slate-200">Pronto Atendimento:</span>
+                                <span class="text-xs font-bold text-oracle-green font-mono" id="tab1-ps-cap">3 / 4 Leitos Ativos</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="lg:col-span-5 bg-oracle-card border border-oracle-border rounded-2xl p-6 shadow-xl flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center gap-2 border-b border-oracle-border pb-3 mb-4">
+                            <i class="fa-solid fa-shield-halved text-oracle-blue text-sm"></i>
+                            <h3 class="text-sm font-bold uppercase tracking-wider text-slate-100">Governança de Dados Segura</h3>
+                        </div>
+                        <p class="text-xs text-oracle-textMuted leading-relaxed">
+                            Para estarmos em total conformidade com a LGPD, o portal **Synapse Health** monitora apenas a capacidade física do leito e as prioridades operacionais da triagem do hospital (Manchester), eliminando qualquer exposição de dados pessoais sensíveis de prontuários médicos.
+                        </p>
+                    </div>
+                    <div class="border-t border-oracle-border/40 pt-4 flex items-center gap-2 text-[10px] text-oracle-teal font-mono">
+                        <i class="fa-solid fa-lock"></i>
+                        <span>PRIVACY BY DESIGN HABILITADO</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= TAB 2: MONITORAMENTO & JORNADA ANALÍTICA (ORACLE) ================= -->
+        <div id="oracle-tab" class="flex flex-col gap-6">
+            
+            <!-- LINHA 1 (TOPO HORIZONTAL): SELETOR DE TEMPORADA + KPIs LADO A LADO -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <!-- Seletor de Temporada (Esquerda - 7 colunas) -->
+                <div class="lg:col-span-7 bg-oracle-card border border-oracle-border rounded-2xl p-4 shadow-xl flex flex-col sm:flex-row justify-between items-center gap-4">
+                    <div>
+                        <h3 class="text-sm font-bold uppercase text-oracle-blue flex items-center gap-2">
+                            <i class="fa-solid fa-calendar-days"></i> Exploração de Período Sazonal (Filtro Temporal)
+                        </h3>
+                        <p class="text-xs text-oracle-textMuted mt-0.5">Selecione as estações para simular a flutuação de internações regionais do SUS.</p>
+                    </div>
+                    <!-- Botões de estações com mapeamento de clique limpo e IDs funcionais e sem acentuação -->
+                    <div class="flex bg-oracle-dark p-1 rounded-xl border border-oracle-border text-xs gap-1">
+                        <button onclick="changeSeason('verao')" id="btn-season-verao" class="px-3 py-1.5 rounded-lg text-oracle-textMuted hover:text-white font-bold transition-all flex items-center gap-1">
+                            <i class="fa-solid fa-sun text-oracle-yellow"></i> Verão
+                        </button>
+                        <button onclick="changeSeason('inverno')" id="btn-season-inverno" class="px-3 py-1.5 rounded-lg bg-oracle-accent text-white font-bold transition-all flex items-center gap-1 border border-oracle-blue/30">
+                            <i class="fa-solid fa-snowflake text-oracle-blue"></i> Inverno
+                        </button>
+                        <button onclick="changeSeason('outono')" id="btn-season-outono" class="px-3 py-1.5 rounded-lg text-oracle-textMuted hover:text-white font-bold transition-all flex items-center gap-1">
+                            <i class="fa-solid fa-leaf text-amber-600"></i> Outono
+                        </button>
+                    </div>
+                </div>
+
+                <!-- KPIs de Pressão (Direita - 5 colunas) -->
+                <div class="lg:col-span-5 grid grid-cols-3 gap-4">
+                    <div class="bg-oracle-card border border-oracle-border rounded-xl p-4 flex flex-col justify-center gap-1">
+                        <span class="text-2xs text-oracle-textMuted uppercase font-bold block leading-none">Taxa Internação</span>
+                        <span class="text-sm font-bold text-slate-100 mt-1 font-mono" id="stat-admission-rate">1.420 /mês <span class="text-xs text-oracle-red font-normal" id="stat-admission-diff">(+34%)</span></span>
+                    </div>
+                    <div class="bg-oracle-card border border-oracle-border rounded-xl p-4 flex flex-col justify-center gap-1">
+                        <span class="text-2xs text-oracle-textMuted uppercase font-bold block leading-none">Permanência Média</span>
+                        <span class="text-sm font-bold text-slate-100 mt-1 font-mono" id="stat-avg-stay">8.4 dias <span class="text-xs text-oracle-yellow font-normal" id="stat-stay-diff">(+1.2d)</span></span>
+                    </div>
+                    <div class="bg-oracle-card border border-oracle-border rounded-xl p-4 flex flex-col justify-center gap-1">
+                        <span class="text-2xs text-oracle-textMuted uppercase font-bold block leading-none">Estabilidade Geral</span>
+                        <span class="text-sm font-bold text-slate-100 mt-1 font-mono animate-pulse" id="stat-stability">55% <span class="text-xs text-oracle-red font-normal">CRÍTICA</span></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- LINHA 2 (CENTRAL): MAPA + RANKING + SELECT AI (HORIZONTALMENTE EM 3 COLUNAS) -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+                
+                <!-- 1. MAPA GEOGRÁFICO REALISTA DE SÃO PAULO (Baseado fielmente em 2.png, dividindo as DRS) -->
+                <div class="lg:col-span-4 bg-oracle-card border border-oracle-border rounded-2xl p-4 flex flex-col justify-between shadow-xl h-[520px]">
+                    <div>
+                        <span class="text-xs font-mono text-oracle-teal bg-oracle-teal/10 px-2 py-0.5 rounded-full border border-oracle-teal/20">MALHA GEOGRÁFICA DO SUS (2.png)</span>
+                        <h4 class="text-xs font-bold text-slate-200 mt-2">Departamentos Regionais de Saúde (DRS)</h4>
+                    </div>
+
+                    <!-- Desenho em alta fidelidade do Estado de São Paulo dividido em 16 DRS regionais baseados em 2.png -->
+                    <div class="flex items-center justify-center py-2 relative">
+                        <svg viewBox="0 0 350 250" class="w-72 h-72 transition-all duration-300">
+                            <!-- Conexões de telemetria sutis de fundo -->
+                            <g stroke="#1E293B" stroke-width="0.5" fill="none" opacity="0.3">
+                                <circle cx="100" cy="80" r="40" />
+                                <circle cx="200" cy="120" r="60" />
+                            </g>
+
+                            <!-- SÃO JOSÉ DO RIO PRETO (Beige) -->
+                            <path d="M 120 20 L 160 30 L 170 55 L 140 70 L 110 50 Z" 
+                                  id="drs-riopreto" class="transition-all duration-300 cursor-pointer hover:stroke-white stroke-oracle-card stroke-2" fill="#EAD5C3" 
+                                  onclick="selectRegion('DRS XV - São José do Rio Preto', '🔴 CRÍTICO (Falta de Leitos de UTI Infantil)')"/>
+
+                            <!-- ARAÇATUBA (Amarelo) -->
+                            <path d="M 60 40 L 120 20 L 110 50 L 130 90 L 80 80 Z" 
+                                  id="drs-aracatuba" class="transition-all duration-300 cursor-pointer hover:stroke-white stroke-oracle-card stroke-2" fill="#FDFD00" 
+                                  onclick="selectRegion('DRS II - Araçatuba', '🟢 ESTÁVEL (Baixo volume de internações)')"/>
+
+                            <!-- PRESIDENTE PRUDENTE (Rosa) -->
+                            <path d="M 30 110 L 80 80 L 110 100 L 90 120 L 40 120 Z" 
+                                  id="drs-prudente" class="transition-all duration-300 cursor-pointer hover:stroke-white stroke-oracle-card stroke-2" fill="#FCA5A5" 
+                                  onclick="selectRegion('DRS XI - Presidente Prudente', '🟡 ALERTA (Falta de plantonistas de urgência)')"/>
+
+                            <!-- MARÍLIA (Ciano) -->
+                            <path d="M 110 100 L 130 90 L 160 110 L 140 140 L 110 120 Z" 
+                                  id="drs-marilia" class="transition-all duration-300 cursor-pointer hover:stroke-white stroke-oracle-card stroke-2" fill="#00FFFF" 
+                                  onclick="selectRegion('DRS VI - Marília', '🟢 ESTÁVEL (Demandas controladas na média)')"/>
+
+                            <!-- BARRETOS (Verde-Bandeira) -->
+                            <path d="M 160 30 L 190 35 L 195 55 L 170 55 Z" 
+                                  id="drs-barretos" class="transition-all duration-300 cursor-pointer hover:stroke-white stroke-oracle-card stroke-2" fill="#10B981" 
+                                  onclick="selectRegion('DRS V - Barretos', '🟡 ALERTA (Urgência sob atenção sazonal)')"/>
+
+                            <!-- FRANCA (Laranja) -->
+                            <path d="M 190 35 L 225 20 L 235 55 L 200 65 L 195 55 Z" 
+                                  id="drs-franca" class="transition-all duration-300 cursor-pointer hover:stroke-white stroke-oracle-card stroke-2" fill="#EA580C" 
+                                  onclick="selectRegion('DRS VIII - Franca', '🟡 ALERTA (Flutuação de síndromes respiratórias)')"/>
+
+                            <!-- RIBEIRÃO PRETO (Amarelo-Verde/Limão) -->
+                            <path d="M 195 55 L 200 65 L 230 75 L 210 95 L 180 80 Z" 
+                                  id="drs-ribeirao" class="transition-all duration-300 cursor-pointer hover:stroke-white stroke-oracle-card stroke-2" fill="#A3E635" 
+                                  onclick="selectRegion('DRS XIII - Ribeirão Preto', '🔴 CRÍTICO (Leitos sob extrema pressão de outono)')"/>
+
+                            <!-- ARARAQUARA (Roxo/Violeta) -->
+                            <path d="M 170 70 L 180 80 L 220 95 L 200 115 L 160 90 Z" 
+                                  id="drs-araraquara" class="transition-all duration-300 cursor-pointer hover:stroke-white stroke-oracle-card stroke-2" fill="#A855F7" 
+                                  onclick="selectRegion('DRS III - Araraquara', '🟢 ESTÁVEL (Controle sanitário em andamento)')"/>
+
+                            <!-- BAURU (Laranja Claro) -->
+                            <path d="M 130 90 L 170 70 L 190 100 L 160 110 L 140 100 Z" 
+                                  id="drs-bauru" class="transition-all duration-300 cursor-pointer hover:stroke-white stroke-oracle-card stroke-2" fill="#F97316" 
+                                  onclick="selectRegion('DRS VI - Bauru', '🟡 ALERTA (Leitos cirúrgicos sob atenção)')"/>
+
+                            <!-- SOROCABA (Verde Limão) -->
+                            <path d="M 160 110 L 190 100 L 230 130 L 210 160 L 170 140 Z" 
+                                  id="drs-sorocaba" class="transition-all duration-300 cursor-pointer hover:stroke-white stroke-oracle-card stroke-2" fill="#84CC16" 
+                                  onclick="selectRegion('DRS XVI - Sorocaba', '🟢 ESTÁVEL (Fluxo assistencial dentro do SLA)')"/>
+
+                            <!-- CAMPINAS (Vermelho/Rosa Forte) -->
+                            <path d="M 190 100 L 220 95 L 260 115 L 240 140 L 190 120 Z" 
+                                  id="drs-campinas" class="transition-all duration-300 cursor-pointer hover:stroke-white stroke-oracle-card stroke-2" fill="#EF4444" 
+                                  onclick="selectRegion('DRS VII - Campinas', '🔴 CRÍTICO (Estouro de demanda em pediatria)')"/>
+
+                            <!-- ITAPEVA (Rosa Claro/Lilás) -->
+                            <path d="M 140 140 L 170 140 L 190 190 L 150 190 Z" 
+                                  id="drs-itapeva" class="transition-all duration-300 cursor-pointer hover:stroke-white stroke-oracle-card stroke-2" fill="#F472B6" 
+                                  onclick="selectRegion('DRS XII - Itapeva', '🟢 ESTÁVEL (Demanda per capita normal)')"/>
+
+                            <!-- SÃO JOSÉ DOS CAMPOS (Azul Escuro) -->
+                            <path d="M 260 115 L 300 110 L 320 125 L 280 145 Z" 
+                                  id="drs-sjc" class="transition-all duration-300 cursor-pointer hover:stroke-white stroke-oracle-card stroke-2" fill="#2563EB" 
+                                  onclick="selectRegion('DRS XVII - São José dos Campos', '🟢 ESTÁVEL (Alocação controlada regionalmente)')"/>
+
+                            <!-- SÃO PAULO (Lilás) -->
+                            <path d="M 230 130 L 260 125 L 275 140 L 240 140 Z" 
+                                  id="drs-sp" class="transition-all duration-300 cursor-pointer hover:stroke-white stroke-oracle-card stroke-2" fill="#C084FC" 
+                                  onclick="selectRegion('DRS I - Grande São Paulo', '🔴 CRÍTICO (Esgotamento crítico de leitos de UTI)')"/>
+
+                            <!-- SANTOS (Amarelo-Verde Escuro) -->
+                            <path d="M 240 140 L 275 140 L 260 155 L 235 150 Z" 
+                                  id="drs-santos" class="transition-all duration-300 cursor-pointer hover:stroke-white stroke-oracle-card stroke-2" fill="#CA8A04" 
+                                  onclick="selectRegion('DRS IV - Baixada Santista', '🟡 ALERTA (Pressão em emergências litorâneas)')"/>
+
+                            <!-- REGISTRO (Azul Claro) -->
+                            <path d="M 170 190 L 190 190 L 230 160 L 210 210 L 180 210 Z" 
+                                  id="drs-registro" class="transition-all duration-300 cursor-pointer hover:stroke-white stroke-oracle-card stroke-2" fill="#06B6D4" 
+                                  onclick="selectRegion('DRS XII - Registro', '🟢 ESTÁVEL (Fluxo assistencial dentro do esperado)')"/>
+                        </svg>
+                    </div>
+
+                    <div class="bg-oracle-dark/40 p-2.5 rounded-lg border border-oracle-border text-xs">
+                        <span class="text-oracle-textMuted block text-[13px]">Foco Selecionado:</span>
+                        <span class="font-bold text-slate-200 text-[13px]" id="selected-region-text">Grande São Paulo - 🔴 CRÍTICO (Esgotamento crítico de leitos de UTI)</span>
+                    </div>
+                </div>
+
+                <!-- 2. RANKING HOSPITALAR (4 colunas, altura fixa 520px) -->
+                <div class="lg:col-span-4 bg-oracle-card border border-oracle-border rounded-2xl p-4 flex flex-col justify-between shadow-xl h-[520px]">
+                    <div>
+                        <span class="text-xs font-mono text-oracle-yellow bg-oracle-yellow/10 px-2 py-0.5 rounded-full border border-oracle-yellow/20">RANKING E COMPARAÇÕES</span>
+                        <h4 class="text-xs font-bold text-slate-200 mt-2">Top Unidades sob Pressão Assistencial</h4>
+                    </div>
+
+                    <div class="overflow-y-auto flex-grow my-3 pr-1">
+                        <table class="w-full text-xs text-left border-collapse">
+                            <thead>
+                                <tr class="text-oracle-textMuted border-b border-oracle-border pb-1">
+                                    <th class="pb-1.5 font-bold">HOSPITAL / MUNICÍPIO</th>
+                                    <th class="pb-1.5 font-bold text-center">INTERN. (MÊS)</th>
+                                    <th class="pb-1.5 font-bold text-center">PERM. MÉDIA</th>
+                                    <th class="pb-1.5 font-bold text-right">STATUS</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-oracle-border/40 text-slate-300" id="ranking-table-body">
+                                <!-- Injetado via Javascript -->
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="text-xs text-oracle-textMuted border-t border-oracle-border/40 pt-2 flex justify-between">
+                        <span>Fonte: DATASUS / CNES Integrado</span>
+                        <span>Atualização mensal</span>
+                    </div>
+                </div>
+
+                <!-- 3. ORACLE SELECT AI (4 colunas, altura fixa 520px) -->
+                <div class="lg:col-span-4 bg-oracle-card border border-oracle-border rounded-2xl p-5 shadow-xl flex flex-col h-[520px]">
+                    <div class="border-b border-oracle-border pb-3 mb-4">
+                        <div class="flex items-center justify-between">
+                            <h3 class="text-sm font-bold uppercase tracking-wider text-oracle-yellow flex items-center gap-2">
+                                <i class="fa-solid fa-terminal"></i> Oracle Select AI Engine
+                            </h3>
+                            <span class="text-xs font-mono text-oracle-blue bg-oracle-blue/10 px-2 py-0.5 rounded-full border border-oracle-blue/20">NL-TO-SQL ATIVO</span>
+                        </div>
+                        <p class="text-xs text-oracle-textMuted mt-1">Consulte o banco do hospital em linguagem natural sobre Sazonalidade e tempos médios.</p>
+                    </div>
+
+                    <!-- Presets de Busca Rápidas -->
+                    <div class="mb-4">
+                        <span class="text-xs text-oracle-textMuted uppercase font-bold tracking-wider block mb-2">Perguntas Rápidas:</span>
+                        <div class="flex flex-col gap-1.5">
+                            <button onclick="usePresetQuery('Qual é o tempo médio de alocação de leitos por sector no hospital?')" class="text-left text-xs bg-oracle-dark/50 hover:bg-oracle-accent/20 border border-oracle-border hover:border-oracle-blue/30 p-2 rounded-lg text-slate-300 transition-all flex items-center justify-between group">
+                                <span>"Qual o tempo médio de alocação de leitos?"</span>
+                                <i class="fa-solid fa-chevron-right text-xs text-oracle-textMuted group-hover:text-oracle-blue"></i>
+                            </button>
+                            <button onclick="usePresetQuery('Quais municípios apresentam maior pico de internação no Inverno?')" class="text-left text-xs bg-oracle-dark/50 hover:bg-oracle-accent/20 border border-oracle-border hover:border-oracle-blue/30 p-2 rounded-lg text-slate-300 transition-all flex items-center justify-between group">
+                                <span>"Quais municípios têm pico no Inverno?"</span>
+                                <i class="fa-solid fa-chevron-right text-xs text-oracle-textMuted group-hover:text-oracle-blue"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Barra de Input de Busca -->
+                    <div class="flex gap-2 mb-4">
+                        <input type="text" id="ai-query-input" placeholder="Pergunte ao Select AI (Ex: tempo de alocação)..." class="flex-grow bg-oracle-dark border border-oracle-border focus:border-oracle-blue focus:ring-1 focus:ring-oracle-blue text-xs rounded-xl p-3 text-slate-200 outline-none">
+                        <button onclick="executeQuery()" class="bg-oracle-blue hover:bg-blue-600 px-4 rounded-xl text-xs font-bold text-white transition-all flex items-center gap-1.5"><i class="fa-solid fa-play"></i> Consultar</button>
+                    </div>
+
+                    <!-- Painel de Resultados do Select AI (Aumentado para baixo) -->
+                    <div class="bg-oracle-dark/80 border border-oracle-border rounded-xl p-4 flex-grow flex flex-col font-mono text-xs overflow-hidden">
+                        <div class="flex items-center justify-between text-xs text-oracle-textMuted border-b border-oracle-border pb-2 mb-3">
+                            <span>SESSÃO: ORACLE_SELECT_AI</span>
+                            <span id="ai-status">PRONTO</span>
+                        </div>
+
+                        <!-- Console Output Area -->
+                        <div id="ai-output-area" class="flex-grow overflow-y-auto space-y-4 pr-1">
+                            <div class="text-slate-400 leading-relaxed text-xs">
+                                <span class="text-oracle-blue">&gt;</span> Digite ou escolha uma pergunta acima para iniciar o processamento NL2SQL.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- LINHA 3 (INFERIOR): CLUSTERS (8 colunas) & EXPLICABILIDADE (4 colunas) -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+                
+                <!-- 4. SEGMENTAÇÃO POR AGRUPAMENTO (8 colunas) -->
+                <div class="lg:col-span-8 bg-oracle-card border border-oracle-border rounded-2xl p-4 shadow-xl">
+                    <div class="border-b border-oracle-border pb-2.5 mb-3 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+                        <div>
+                            <h4 class="text-xs font-bold uppercase text-slate-100 flex items-center gap-1.5">
+                                <i class="fa-solid fa-cubes text-oracle-teal"></i> Segmentação por Agrupamento de Similaridade (Cluster Model)
+                            </h4>
+                        </div>
+                        <span class="text-xs font-mono text-oracle-teal bg-oracle-teal/10 px-2.5 py-0.5 rounded-full border border-oracle-teal/20">SCIKIT-LEARN K-MEANS</span>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+                        <div class="bg-oracle-dark/40 border border-oracle-red/30 rounded-xl p-4 flex flex-col justify-between min-h-[15rem] relative" id="cluster-card-1">
+                            <div class="pr-16">
+                                <span class="absolute top-4 right-4 text-xs font-mono text-oracle-red font-bold">Cluster 01</span>
+                                <h5 class="font-bold text-slate-200">Sensibilidade Sazonal</h5>
+                                <p class="text-xs text-oracle-textMuted mt-2">Hospitais metropolitanos de grande porte. Alta vulnerabilidade a Influenza.</p>
+                            </div>
+                            <div class="mt-4 flex justify-between items-center text-xs font-mono border-t border-oracle-border/40 pt-3">
+                                <span class="text-oracle-red">Leitos: &gt; 85%</span>
+                                <span class="text-slate-400" id="cluster-count-1">4 Unidades</span>
+                            </div>
+                        </div>
+
+                        <div class="bg-oracle-dark/40 border border-oracle-yellow/30 rounded-xl p-4 flex flex-col justify-between min-h-[15rem] relative" id="cluster-card-2">
+                            <div class="pr-16">
+                                <span class="absolute top-4 right-4 text-xs font-mono text-oracle-yellow font-bold">Cluster 02</span>
+                                <h5 class="font-bold text-slate-200">Instabilidade Crônica</h5>
+                                <p class="text-xs text-oracle-textMuted mt-2">Unidades com alta permanência média devido à falta de leitos de retaguarda.</p>
+                            </div>
+                            <div class="mt-4 flex justify-between items-center text-xs font-mono border-t border-oracle-border/40 pt-3">
+                                <span class="text-oracle-yellow">Média Stay: 11.2d</span>
+                                <span class="text-slate-400" id="cluster-count-2">8 Unidades</span>
+                            </div>
+                        </div>
+
+                        <div class="bg-oracle-dark/40 border border-oracle-green/30 rounded-xl p-4 flex flex-col justify-between min-h-[15rem] relative" id="cluster-card-3">
+                            <div class="pr-16">
+                                <span class="absolute top-4 right-4 text-xs font-mono text-oracle-green font-bold">Cluster 03</span>
+                                <h5 class="font-bold text-slate-200">Estabilidade Alta</h5>
+                                <p class="text-xs text-oracle-textMuted mt-2">Unidades regionais com fluxo equilibrado e dimensionamento de escalas adequado.</p>
+                            </div>
+                            <div class="mt-4 flex justify-between items-center text-xs font-mono border-t border-oracle-border/40 pt-3">
+                                <span class="text-oracle-green">Carga Média: &lt; 50%</span>
+                                <span class="text-slate-400" id="cluster-count-3">12 Unidades</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 5. EXPLICABILIDADE DE NEGÓCIO (4 colunas) -->
+                <div class="lg:col-span-4 bg-oracle-card border border-oracle-border rounded-2xl p-5 shadow-xl">
+                    <div class="border-b border-oracle-border pb-2.5 mb-3">
+                        <h4 class="text-xs font-bold uppercase text-oracle-blue flex items-center gap-1.5">
+                            <i class="fa-solid fa-brain"></i>
+                            Explicabilidade do Modelo e Fatores de Pressão
+                        </h4>
+                    </div>
+
+                    <div class="space-y-3 my-2 text-xs">
+                        <div>
+                            <div class="flex justify-between mb-1 text-xs font-mono">
+                                <span class="text-slate-300">Sazonalidade Climática (Doenças Respiratórias)</span>
+                                <span class="font-bold text-oracle-red" id="exp-weight-1">Peso: 45%</span>
+                            </div>
+                            <div class="w-full bg-oracle-dark rounded-full h-1.5">
+                                <div class="bg-oracle-red h-1.5 rounded-full" style="width: 45%" id="exp-bar-1"></div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <div class="flex justify-between mb-1 text-xs font-mono">
+                                <span class="text-slate-300">Tempo de Espera em Prontos-Socorros</span>
+                                <span class="font-bold text-oracle-yellow" id="exp-weight-2">Peso: 30%</span>
+                            </div>
+                            <div class="w-full bg-oracle-dark rounded-full h-1.5">
+                                <div class="bg-oracle-yellow h-1.5 rounded-full" style="width: 30%" id="exp-bar-2"></div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <div class="flex justify-between mb-1 text-xs font-mono">
+                                <span class="text-slate-300">Fadiga Acumulada da Equipe de Escala</span>
+                                <span class="font-bold text-oracle-blue" id="exp-weight-3">Peso: 25%</span>
+                            </div>
+                            <div class="w-full bg-oracle-dark rounded-full h-1.5">
+                                <div class="bg-oracle-blue h-1.5 rounded-full" style="width: 25%" id="exp-bar-3"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-oracle-dark/40 border border-oracle-border rounded-xl p-3 mt-3">
+                        <span class="text-xs font-bold text-slate-200 block"><i class="fa-solid fa-lightbulb text-oracle-yellow mr-1"></i> Insight Estratégico:</span>
+                        <p class="text-xs text-oracle-textMuted mt-1 leading-relaxed" id="exp-insight-text">
+                            O forte pico de frio regional causará aumento de até 34% em internações na pediatria. Ação recomendada: use o Módulo Balance para antecipar as escalas.
+                        </p>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- ================= TAB 3: ALOCAÇÃO SYNAPSE HEALTH (MÓDULO BALANCE) ================= -->
+        <div id="balance-tab" class="grid grid-cols-1 lg:grid-cols-12 gap-6 hidden">
+            <!-- COLUNA ESQUERDA: CENTRO DE DECISÃO DO GESTOR (4 Cols) -->
+            <section class="lg:col-span-4 flex flex-col gap-6">
+                <div class="bg-oracle-card border border-oracle-border rounded-2xl p-5 shadow-xl flex-grow flex flex-col min-h-[450px]">
+                    <div class="flex items-center justify-between mb-4 border-b border-oracle-border pb-3">
+                        <h2 class="text-md font-bold uppercase tracking-wider text-oracle-yellow flex items-center gap-2">
+                            <i class="fa-solid fa-code-branch text-sm"></i>
+                            Centro de Decisão e Escalas
+                        </h2>
+                        <span class="text-xs font-semibold text-slate-300 bg-oracle-accent/40 px-2 py-0.5 rounded-full border border-oracle-border" id="rec-pending-count">1 Aguardando</span>
+                    </div>
+
+                    <div id="decision-feed" class="flex-grow flex flex-col gap-3 overflow-y-auto pr-1">
+                        <!-- Cards de sugestão vão renderizar aqui via Javascript -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- COLUNA CENTRAL: MAPA DE LEITOS (5 Cols) -->
+            <section class="lg:col-span-5 flex flex-col gap-6">
+                <div class="bg-oracle-card border border-oracle-border rounded-2xl p-5 shadow-xl flex-grow flex flex-col">
+                    <div class="flex items-center justify-between mb-4 border-b border-oracle-border pb-3">
+                        <div>
+                            <h2 class="text-md font-bold uppercase tracking-wider text-slate-100 flex items-center gap-2">
+                                <i class="fa-solid fa-hospital-user text-oracle-blue text-sm"></i>
+                                Visão de Leitos do Hospital
+                            </h2>
+                            <p class="text-xs text-oracle-textMuted mt-0.5">Clique em um leito para obter a recomendação ou detalhes da escala.</p>
+                        </div>
+                        <div class="flex gap-1.5">
+                            <span class="w-2.5 h-2.5 rounded-full bg-oracle-red" title="Crítico"></span>
+                            <span class="w-2.5 h-2.5 rounded-full bg-oracle-yellow" title="Moderado"></span>
+                            <span class="w-2.5 h-2.5 rounded-full bg-oracle-green" title="Baixo"></span>
+                        </div>
+                    </div>
+
+                    <div class="flex gap-2 mb-4 overflow-x-auto pb-1 text-xs">
+                        <button onclick="filterBeds('TODOS')" id="filter-all" class="px-3 py-1.5 rounded-lg bg-oracle-blue text-white font-medium hover:bg-blue-600 transition-all">Todos</button>
+                        <button onclick="filterBeds('UTI')" id="filter-uti" class="px-3 py-1.5 rounded-lg bg-oracle-dark/60 text-oracle-textMuted border border-oracle-border hover:border-oracle-blue hover:text-white transition-all">UTI Geral</button>
+                        <button onclick="filterBeds('PED')" id="filter-ped" class="px-3 py-1.5 rounded-lg bg-oracle-dark/60 text-oracle-textMuted border border-oracle-border hover:border-oracle-blue hover:text-white transition-all">Pediatria</button>
+                        <button onclick="filterBeds('PS')" id="filter-ps" class="px-3 py-1.5 rounded-lg bg-oracle-dark/60 text-oracle-textMuted border border-oracle-border hover:border-oracle-blue hover:text-white transition-all">Pronto Atendimento</button>
+                    </div>
+
+                    <div class="grid grid-cols-3 sm:grid-cols-4 gap-3 flex-grow overflow-y-auto min-h-[300px]" id="beds-grid">
+                        <!-- Leitos gerados dinamicamente via JS -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- COLUNA DIREITA: EQUIPE E ANALÍTICO DE FADIGA (3 Cols) -->
+            <section class="lg:col-span-3 flex flex-col gap-6">
+                <div class="bg-oracle-card border border-oracle-border rounded-2xl p-5 shadow-xl flex-grow flex flex-col">
+                    <div class="border-b border-oracle-border pb-3 mb-4">
+                        <h2 class="text-md font-bold uppercase tracking-wider text-slate-100 flex items-center gap-2">
+                            <i class="fa-solid fa-user-doctor text-indigo-400 text-sm"></i>
+                            Matriz de Fadiga - Synapse Health
+                        </h2>
+                        <p class="text-xs text-oracle-textMuted mt-0.5">Selecione o profissional para visualizar seu histórico analítico.</p>
+                    </div>
+
+                    <div class="flex-grow flex flex-col gap-3 overflow-y-auto pr-1" id="professionals-list">
+                        <!-- Cards de Profissionais gerados via JS -->
+                    </div>
+                </div>
+            </section>
+        </div>
+
+    </main>
+
+    <!-- DRAWER LATERAL: PERFIL DETALHADO DO PROFISSIONAL -->
+    <div id="profile-drawer" class="fixed inset-0 bg-oracle-dark/75 backdrop-blur-sm z-50 transition-all duration-300 pointer-events-none opacity-0 flex justify-end">
+        <div class="w-full max-w-md bg-oracle-card border-l border-oracle-border p-6 shadow-2xl h-screen flex flex-col translate-x-full transition-transform duration-300 overflow-y-auto" id="drawer-content">
+            
+            <div class="flex items-center justify-between border-b border-oracle-border pb-4 mb-5">
+                <div class="flex items-center gap-3">
+                    <div class="w-12 h-12 rounded-xl bg-oracle-accent/50 border border-oracle-blue/30 flex items-center justify-center text-oracle-blue text-lg font-bold" id="drawer-avatar">
+                        AA
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-lg text-slate-100" id="drawer-name">Amanda Albuquerque</h3>
+                        <span class="text-xs text-oracle-textMuted" id="drawer-role">Enfermeira Chefe - UTI</span>
+                    </div>
+                </div>
+                <button onclick="closeDrawer()" class="text-oracle-textMuted hover:text-white p-2 rounded-lg bg-oracle-dark/50 border border-oracle-border hover:border-oracle-blue/30 transition-all">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <div class="flex-grow flex flex-col gap-6">
+                <!-- Gauge de Fadiga -->
+                <div class="bg-oracle-dark/50 p-4 rounded-xl border border-oracle-border flex flex-col items-center justify-center text-center">
+                    <span class="text-xs text-oracle-textMuted uppercase font-bold tracking-wider mb-2">Índice de Prontidão Operacional</span>
+                    <div class="relative flex items-center justify-center w-32 h-32 mb-2">
+                        <svg class="w-full h-full transform -rotate-90">
+                            <circle cx="64" cy="64" r="54" stroke="#1E293B" stroke-width="8" fill="transparent"/>
+                            <circle cx="64" cy="64" r="54" stroke="#3B82F6" stroke-width="8" fill="transparent" stroke-dasharray="339.29" stroke-dashoffset="60" id="drawer-gauge-stroke" class="transition-all duration-500"/>
+                        </svg>
+                        <div class="absolute text-center">
+                            <span class="text-2xl font-black text-slate-100" id="drawer-gauge-value">82%</span>
+                            <span class="block text-xs text-oracle-textMuted font-medium uppercase mt-0.5" id="drawer-gauge-label">Ideal</span>
+                        </div>
+                    </div>
+                    <p class="text-xs text-oracle-textMuted leading-relaxed max-w-xs mt-1" id="drawer-gauge-desc">
+                        O algoritmo indica que a profissional está em ótimas condições de fadiga acumulada.
+                    </p>
+                </div>
+
+                <div class="flex flex-col gap-3">
+                    <h4 class="text-xs font-bold uppercase text-oracle-blue tracking-wider">Histórico de Escala Recente</h4>
+                    
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="bg-oracle-dark/40 p-3 rounded-lg border border-oracle-border text-center">
+                            <span class="block text-xs text-oracle-textMuted uppercase">Horas Semanais</span>
+                            <span class="text-lg font-bold text-slate-100" id="drawer-hours">36h / 44h</span>
+                        </div>
+                        <div class="bg-oracle-dark/40 p-3 rounded-lg border border-oracle-border text-center">
+                            <span class="block text-xs text-oracle-textMuted uppercase">Turnos da Noite</span>
+                            <span class="text-lg font-bold text-slate-100" id="drawer-nights">1 consecutivo</span>
+                        </div>
+                    </div>
+
+                    <div class="bg-oracle-dark/40 p-4 rounded-lg border border-oracle-border flex flex-col gap-3 mt-1">
+                        <span class="text-xs font-bold text-oracle-textMuted uppercase tracking-wider block">Últimos 3 Plantões</span>
+                        <div class="flex flex-col gap-3" id="drawer-timeline">
+                            <!-- Inserido dinamicamente -->
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-oracle-dark/30 p-4 rounded-xl border border-oracle-border flex flex-col gap-3">
+                    <h4 class="text-xs font-bold uppercase text-indigo-400 tracking-wider flex items-center gap-1.5">
+                        <i class="fa-solid fa-brain"></i>
+                        Indicadores de Cansaço e Estresse
+                    </h4>
+                    <div class="flex justify-between items-center text-xs">
+                        <span class="text-oracle-textMuted">Tempo de Descanso após Último Turno:</span>
+                        <span class="font-bold text-slate-200" id="drawer-rest-time">24 horas</span>
+                    </div>
+                    <div class="flex justify-between items-center text-xs">
+                        <span class="font-bold text-oracle-green px-2 py-0.5 rounded-full bg-emerald-950/20 border border-emerald-500/20 text-xs" id="drawer-burnout-risk">MUITO BAIXO</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL DE JUSTIFICATIVA -->
+    <div id="reject-modal" class="fixed inset-0 bg-oracle-dark/85 backdrop-blur-md z-50 flex items-center justify-center p-4 opacity-0 pointer-events-none transition-all duration-300">
+        <div class="bg-oracle-card border border-oracle-border rounded-2xl max-w-md w-full p-6 shadow-2xl transform scale-95 transition-transform duration-300">
+            <div class="flex items-center gap-3 mb-4">
+                <div class="w-10 h-10 rounded-full bg-red-950/40 border border-oracle-red/30 flex items-center justify-center text-oracle-red">
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                </div>
+                <div>
+                    <h3 class="font-bold text-lg text-slate-100">Rejeitar Recomendação</h3>
+                    <p class="text-xs text-oracle-textMuted">Justifique o desvio da escala sugerida pela plataforma</p>
+                </div>
+            </div>
+
+            <form id="reject-form" onsubmit="submitRejection(event)" class="flex flex-col gap-4">
+                <input type="hidden" id="reject-rec-id">
+                
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-oracle-blue mb-1.5">Motivo da Rejeição</label>
+                    <select id="reject-reason" required class="w-full bg-oracle-dark/80 border border-oracle-border focus:border-oracle-blue focus:ring-1 focus:ring-oracle-blue text-xs rounded-xl p-3 text-slate-200 font-bold">
+                        <option value="" disabled selected>Escolha o motivo mais adequado</option>
+                        <option value="Troca solicitada diretamente pelo colaborador">Troca solicitada diretamente pelo colaborador</option>
+                        <option value="Colaborador com incompatibilidade de sub-área clínica">Colaborador com incompatibilidade de sub-área clínica</option>
+                        <option value="Restrição médica ou funcional não cadastrada no RH">Restrição médica ou funcional não cadastrada no RH</option>
+                        <option value="Preferência do gestor operacional da ala">Preferência do gestor operacional da ala</option>
+                        <option value="Outros">Outros (Descrever abaixo)</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-oracle-blue mb-1.5">Descrição Adicional</label>
+                    <textarea id="reject-desc" rows="3" placeholder="Insira detalhes adicionais sobre a decisão..." class="w-full bg-oracle-dark/80 border border-oracle-border focus:border-oracle-blue focus:ring-1 focus:ring-oracle-blue text-xs rounded-xl p-3 text-slate-200 resize-none"></textarea>
+                </div>
+
+                <div class="flex gap-3 justify-end mt-2">
+                    <button type="button" onclick="closeRejectModal()" class="px-4 py-2 text-xs bg-oracle-dark hover:bg-oracle-border transition-all border border-oracle-border text-oracle-textMuted font-bold rounded-lg">Cancelar</button>
+                    <button type="submit" class="px-4 py-2 text-xs bg-oracle-red hover:bg-red-600 transition-all font-bold text-white rounded-lg">Confirmar e Rejeitar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- TOAST DE NOTIFICAÇÃO -->
+    <div id="toast" class="fixed bottom-6 right-6 bg-oracle-card border border-oracle-blue/30 px-4 py-3 rounded-xl shadow-2xl flex items-center gap-3 z-50 text-xs transition-all duration-300 translate-y-24 opacity-0 pointer-events-none max-w-sm">
+        <div class="w-7 h-7 rounded-full bg-blue-950/50 flex items-center justify-center text-oracle-blue" id="toast-icon">
+            <i class="fa-solid fa-info"></i>
+        </div>
+        <p class="text-slate-200" id="toast-msg">Mensagem padrão</p>
+    </div>
+
+    <!-- FLOATING SIMULATION CONSOLE -->
+    <div id="sim-console" class="fixed bottom-6 left-6 bg-oracle-card/95 border border-oracle-blue/30 p-4 rounded-xl shadow-2xl z-40 max-w-sm transition-all duration-300">
+        <div class="flex items-center justify-between border-b border-oracle-border pb-2 mb-3">
+            <span class="text-xs font-bold text-slate-300 flex items-center gap-1.5">
+                <i class="fa-solid fa-laptop-code text-oracle-blue animate-pulse"></i>
+                Gerador de Triagem Clínico
+            </span>
+            <button onclick="toggleSimConsole()" class="text-oracle-textMuted hover:text-white transition-all text-xs" title="Ocultar console">
+                <i class="fa-solid fa-eye-slash"></i> Ocultar
+            </button>
+        </div>
+        <div class="space-y-2">
+            <button onclick="simulatePatientInflow('🔴 Alta Complexidade')" class="w-full px-3 py-2 bg-red-950/40 border border-oracle-red/40 hover:border-oracle-red rounded-lg text-xs font-bold text-red-400 transition-all flex items-center justify-between">
+                <span>Manchester Vermelho (C3)</span>
+                <i class="fa-solid fa-circle-exclamation text-oracle-red"></i>
+            </button>
+            <button onclick="simulatePatientInflow('🟡 Média Complexidade')" class="w-full px-3 py-2 bg-yellow-950/40 border border-oracle-yellow/40 hover:border-oracle-yellow rounded-lg text-xs font-bold text-yellow-400 transition-all flex items-center justify-between">
+                <span>Manchester Amarelo (C2)</span>
+                <i class="fa-solid fa-triangle-exclamation text-oracle-yellow"></i>
+            </button>
+        </div>
+    </div>
+
+    <button id="btn-show-sim" onclick="toggleSimConsole()" class="fixed bottom-6 left-6 bg-oracle-card border border-oracle-blue/30 px-3 py-2 rounded-lg text-xs text-oracle-blue hover:text-white transition-all z-40 shadow-xl hidden">
+        <i class="fa-solid fa-eye"></i> Simular Entrada
+    </button>
+
+    <!-- RODAPÉ INFORMATIVO -->
+    <footer class="bg-oracle-card/40 border-t border-oracle-border text-center py-4 text-xs text-oracle-textMuted mt-auto flex flex-col sm:flex-row justify-between items-center px-6 gap-2">
+        <p>© 2026 Synapse Health - Solução Integrada de Monitoramento e Escalas</p>
+        <p class="flex items-center gap-1.5"><i class="fa-solid fa-shield-halved text-oracle-blue"></i> Protegido em conformidade integral com a LGPD (Privacy by Design)</p>
+    </footer>
+
+    <!-- LÓGICA DO PROTÓTIPO -->
+    <script>
+        const initialBeds = [
+            { id: 101, label: 'L. 101', complexity: '🔴 Alta', sector: 'UTI', complexityLevel: 3, currentNurse: null },
+            { id: 102, label: 'L. 102', complexity: '🟢 Baixa', sector: 'UTI', complexityLevel: 1, currentNurse: 'Carlos M.' },
+            { id: 103, label: 'L. 103', complexity: '🟡 Média', sector: 'UTI', complexityLevel: 2, currentNurse: 'Beatriz F.' },
+            { id: 104, label: 'L. 104', complexity: '🟢 Baixa', sector: 'UTI', complexityLevel: 1, currentNurse: 'Mateus A.' },
+            { id: 201, label: 'L. 201', complexity: '🟢 Baixa', sector: 'PED', complexityLevel: 1, currentNurse: 'Patrícia K.' },
+            { id: 202, label: 'L. 202', complexity: '🟡 Média', sector: 'PED', complexityLevel: 2, currentNurse: null },
+            { id: 203, label: 'L. 203', complexity: '🔴 Alta', sector: 'PED', complexityLevel: 3, currentNurse: 'Ana S.' },
+            { id: 204, label: 'L. 204', complexity: '🟢 Baixa', sector: 'PED', complexityLevel: 1, currentNurse: 'Paula V.' },
+            { id: 301, label: 'L. 301', complexity: '🟡 Média', sector: 'PS', complexityLevel: 2, currentNurse: null },
+            { id: 302, label: 'L. 302', complexity: '🟢 Baixa', sector: 'PS', complexityLevel: 1, currentNurse: 'Daniel T.' },
+            { id: 303, label: 'L. 303', complexity: '🔴 Alta', sector: 'PS', complexityLevel: 3, currentNurse: null },
+            { id: 304, label: 'L. 304', complexity: '🟢 Baixa', sector: 'PS', complexityLevel: 1, currentNurse: 'Sonia M.' }
+        ];
+
+        const initialProfessionals = [
+            { id: 941, name: 'Beatriz Fonseca', initials: 'BF', role: 'Técnica de Enfermagem', fatigue: 75, prontidao: 25, nights: 2, hours: 38, rest: 12, burnout: 'MODERADO', history: ['Plantão 12h (Ontem)', 'Plantão 12h (Seg.)', 'Folga (Dom.)'] },
+            { id: 942, name: 'Amanda Albuquerque', initials: 'AA', role: 'Enfermeira de Plantão', fatigue: 22, prontidao: 78, nights: 0, hours: 24, rest: 36, burnout: 'MUITO BAIXO', history: ['Plantão 12h (Ter.)', 'Folga (Seg.)', 'Folga (Dom.)'] },
+            { id: 943, name: 'Carlos Mendes', initials: 'CM', role: 'Técnico de Enfermagem', fatigue: 55, prontidao: 45, nights: 1, hours: 32, rest: 18, burnout: 'BAIXO', history: ['Plantão 12h (Quarta)', 'Folga (Ter.)', 'Plantão 12h (Seg.)'] },
+            { id: 944, name: 'Paula Vasconcelos', initials: 'PV', role: 'Enfermeira de Plantão', fatigue: 45, prontidao: 55, nights: 1, hours: 30, rest: 24, burnout: 'BAIXO', history: ['Plantão 12h (Quarta)', 'Folga (Ter.)', 'Plantão 12h (Dom.)'] },
+            { id: 945, name: 'Daniel Toledo', initials: 'DT', role: 'Técnico de Enfermagem', fatigue: 88, prontidao: 12, nights: 3, hours: 44, rest: 8, burnout: 'ALTO', history: ['Plantão 12h (Ontem)', 'Plantão 12h (Quarta)', 'Plantão 12h (Terça)'] }
+        ];
+
+        const initialRecommendations = [
+            { id: 'rec_1', bedId: 101, sector: 'UTI', complexity: '🔴 Alta', reason: 'O Leito 101 foi classificado como Manchester Vermelho. Alocar o profissional mais descansado do setor para evitar sobrecarga.', suggestedProfId: 942, status: 'Pendente' },
+            { id: 'rec_2', bedId: 303, sector: 'PS', complexity: '🔴 Alta', reason: 'O Leito 303 está sobrecarregado. O plantonista atual está sob fadiga severa.', suggestedProfId: 944, status: 'Pendente' }
+        ];
+
+        // Mapeamento sazonal funcional sem acentuação para evitar bugs lógicos
+        const seasonalData = {
+            inverno: {
+                admissions: '1.420 /mês', admissionsDiff: '(+34%)', admissionsColor: 'text-oracle-red',
+                stay: '8.4 dias', stayDiff: '(+1.2d)', stayColor: 'text-oracle-yellow',
+                stability: '55% CRÍTICA', stabilityColor: 'text-oracle-red',
+                ranking: [
+                    { name: 'Hosp. Regional Metropolitano', city: 'São Paulo', admissions: 520, stay: '8.5 dias', status: '🔴 CRÍTICO' },
+                    { name: 'Hosp. Infantil da Criança', city: 'São Bernardo', admissions: 410, stay: '9.2 dias', status: '🔴 CRÍTICO' },
+                    { name: 'Pronto Atendimento Norte', city: 'Guarulhos', admissions: 280, stay: '5.1 dias', status: '🟡 ALERTA' },
+                    { name: 'Unidade Geral do Interior', city: 'Campinas', admissions: 210, stay: '4.8 dias', status: '🟢 ESTÁVEL' }
+                ],
+                mapColors: {
+                    prudente: '#EF4444', aracatuba: '#F59E0B', marilia: '#10B981', riopreto: '#EF4444', 
+                    barretos: '#EF4444', franca: '#F59E0B', ribeirao: '#EF4444', araraquara: '#F59E0B', 
+                    bauru: '#EF4444', sorocaba: '#10B981', campinas: '#EF4444', itapeva: '#10B981', 
+                    sjc: '#10B981', sp: '#EF4444', santos: '#F59E0B', registro: '#10B981'
+                },
+                clusters: { c1: '6 Unidades', c2: '10 Unidades', c3: '8 Unidades' },
+                explain: {
+                    f1: 'Peso: 55%', f1Val: 55,
+                    f2: 'Peso: 25%', f2Val: 25,
+                    f3: 'Peso: 20%', f3Val: 20,
+                    text: 'Inverno ativa pico histórico de bronquiolite e influenza. Saturação da pediatria na região metropolitana é o principal vetor de aumento.'
+                }
+            },
+            verao: {
+                admissions: '890 /mês', admissionsDiff: '(-12%)', admissionsColor: 'text-oracle-green',
+                stay: '4.2 dias', stayDiff: '(-2.1d)', stayColor: 'text-oracle-green',
+                stability: '82% ESTÁVEL', stabilityColor: 'text-oracle-green',
+                ranking: [
+                    { name: 'Hosp. Regional Metropolitano', city: 'São Paulo', admissions: 310, stay: '4.5 dias', status: '🟢 ESTÁVEL' },
+                    { name: 'Pronto Atendimento Litoral', city: 'Santos', admissions: 290, stay: '5.2 dias', status: '🟡 ALERTA' },
+                    { name: 'Hosp. Infantil da Criança', city: 'São Bernardo', admissions: 140, stay: '3.1 dias', status: '🟢 ESTÁVEL' },
+                    { name: 'Unidade Geral do Interior', city: 'Campinas', admissions: 150, stay: '3.8 dias', status: '🟢 ESTÁVEL' }
+                ],
+                mapColors: {
+                    prudente: '#10B981', aracatuba: '#10B981', marilia: '#10B981', riopreto: '#10B981', 
+                    barretos: '#10B981', franca: '#10B981', ribeirao: '#10B981', araraquara: '#10B981', 
+                    bauru: '#10B981', sorocaba: '#10B981', campinas: '#F59E0B', itapeva: '#10B981', 
+                    sjc: '#F59E0B', sp: '#10B981', santos: '#EF4444', registro: '#10B981'
+                },
+                clusters: { c1: '2 Unidades', c2: '4 Unidades', c3: '18 Unidades' },
+                explain: {
+                    f1: 'Peso: 15%', f1Val: 15,
+                    f2: 'Peso: 55%', f2Val: 55,
+                    f3: 'Peso: 30%', f3Val: 30,
+                    text: 'Verão apresenta picos localizados em microrregiões de turismo e litoral devido a acidentes e afogamentos.'
+                }
+            },
+            outono: {
+                admissions: '1.050 /mês', admissionsDiff: '(+8%)', admissionsColor: 'text-oracle-yellow',
+                stay: '6.1 dias', stayDiff: '(+0.5d)', stayColor: 'text-oracle-yellow',
+                stability: '71% MODERADA', stabilityColor: 'text-oracle-yellow',
+                ranking: [
+                    { name: 'Hosp. Regional Metropolitano', city: 'São Paulo', admissions: 410, stay: '6.2 dias', status: '🟡 ALERTA' },
+                    { name: 'Hosp. Infantil da Criança', city: 'São Bernardo', admissions: 290, stay: '5.8 dias', status: '🟡 ALERTA' },
+                    { name: 'Pronto Atendimento Norte', city: 'Guarulhos', admissions: 200, stay: '4.1 dias', status: '🟢 ESTÁVEL' },
+                    { name: 'Unidade Geral do Interior', city: 'Campinas', admissions: 150, stay: '3.9 dias', status: '🟢 ESTÁVEL' }
+                ],
+                mapColors: {
+                    prudente: '#F59E0B', aracatuba: '#10B981', marilia: '#10B981', riopreto: '#F59E0B', 
+                    barretos: '#F59E0B', franca: '#10B981', ribeirao: '#F59E0B', araraquara: '#10B981', 
+                    bauru: '#10B981', sorocaba: '#F59E0B', campinas: '#F59E0B', itapeva: '#10B981', 
+                    sjc: '#10B981', sp: '#F59E0B', santos: '#10B981', registro: '#10B981'
+                },
+                clusters: { c1: '4 Unidades', c2: '7 Unidades', c3: '13 Unidades' },
+                explain: {
+                    f1: 'Peso: 35%', f1Val: 35,
+                    f2: 'Peso: 40%', f2Val: 40,
+                    f3: 'Peso: 25%', f3Val: 25,
+                    text: 'Outono inicia transição epidemiológica. Quedas de temperatura geram elevações moderadas.'
+                }
+            }
+        };
+
+        let beds = [...initialBeds];
+        let professionals = [...initialProfessionals];
+        let recommendations = [...initialRecommendations];
+        
+        let totalDecisions = 15;
+        let approvedDecisions = 13; 
+
+        let currentSectorFilter = 'TODOS';
+        let activeTab = 'jornada-tab';
+        let activeSeason = 'inverno';
+
+        function toggleSimConsole() {
+            const consoleEl = document.getElementById('sim-console');
+            const showBtn = document.getElementById('btn-show-sim');
+            
+            if (consoleEl.classList.contains('hidden')) {
+                consoleEl.classList.remove('hidden');
+                showBtn.classList.add('hidden');
+                showToast("Console de Testes ativado.", "fa-solid fa-eye text-oracle-blue");
+            } else {
+                consoleEl.classList.add('hidden');
+                showBtn.classList.remove('hidden');
+                showToast("Console ocultado.", "fa-solid fa-eye-slash text-oracle-yellow");
+            }
+        }
+
+        function switchTab(tabId) {
+            activeTab = tabId;
+            const tabJornada = document.getElementById('jornada-tab');
+            const tabOracle = document.getElementById('oracle-tab');
+            const tabBalance = document.getElementById('balance-tab');
+
+            const btnJornada = document.getElementById('btn-jornada-tab');
+            const btnOracle = document.getElementById('btn-oracle-tab');
+            const btnBalance = document.getElementById('btn-balance-tab');
+
+            tabJornada.classList.add('hidden');
+            tabOracle.classList.add('hidden');
+            tabBalance.classList.add('hidden');
+
+            btnJornada.className = "px-3.5 py-2 text-xs font-bold rounded-lg flex items-center gap-2 tab-transition text-oracle-textMuted hover:text-white";
+            btnOracle.className = "px-3.5 py-2 text-xs font-bold rounded-lg flex items-center gap-2 tab-transition text-oracle-textMuted hover:text-white";
+            btnBalance.className = "px-3.5 py-2 text-xs font-bold rounded-lg flex items-center gap-2 tab-transition text-oracle-textMuted hover:text-white";
+
+            if (tabId === 'jornada-tab') {
+                tabJornada.classList.remove('hidden');
+                btnJornada.className = "px-3.5 py-2 text-xs font-bold rounded-lg flex items-center gap-2 tab-transition bg-oracle-accent text-white border border-oracle-blue/30";
+            } else if (tabId === 'oracle-tab') {
+                tabOracle.classList.remove('hidden');
+                btnOracle.className = "px-3.5 py-2 text-xs font-bold rounded-lg flex items-center gap-2 tab-transition bg-oracle-accent text-white border border-oracle-blue/30";
+                changeSeason(activeSeason);
+            } else {
+                tabBalance.classList.remove('hidden');
+                btnBalance.className = "px-3.5 py-2 text-xs font-bold rounded-lg flex items-center gap-2 tab-transition bg-oracle-accent text-white border border-oracle-blue/30";
+                
+                renderBeds();
+                renderRecommendations();
+                renderProfessionals();
+            }
+        }
+
+        const seasonButtons = {
+            'verao': 'btn-season-verao',
+            'inverno': 'btn-season-inverno',
+            'outono': 'btn-season-outono'
+        };
+
+        function changeSeason(seasonName) {
+            activeSeason = seasonName;
+            const data = seasonalData[seasonName];
+            if (!data) return;
+
+            Object.keys(seasonButtons).forEach(key => {
+                const btnId = seasonButtons[key];
+                const btn = document.getElementById(btnId);
+                if (btn) {
+                    if (key === seasonName) {
+                        btn.className = "px-3 py-1.5 rounded-lg bg-oracle-accent text-white font-bold transition-all flex items-center gap-1 border border-oracle-blue/30";
+                    } else {
+                        btn.className = "px-3 py-1.5 rounded-lg text-oracle-textMuted hover:text-white font-bold transition-all flex items-center gap-1";
+                    }
+                }
+            });
+
+            document.getElementById('stat-admission-rate').innerHTML = `${data.admissions} <span class="text-xs ${data.admissionsColor} font-normal" id="stat-admission-diff">${data.admissionsDiff}</span>`;
+            document.getElementById('stat-avg-stay').innerHTML = `${data.stay} <span class="text-xs ${data.stayColor} font-normal" id="stat-stay-diff">${data.stayDiff}</span>`;
+            document.getElementById('stat-stability').innerHTML = `${data.stability} <span class="text-xs font-normal ${data.stabilityColor}">SISTEMA</span>`;
+
+            // Atualização dinâmica de todas as DRS baseadas em 2.png
+            Object.keys(data.mapColors).forEach(key => {
+                const el = document.getElementById(`drs-${key}`);
+                if (el) {
+                    el.setAttribute('fill', data.mapColors[key]);
+                }
+            });
+
+            const rankingBody = document.getElementById('ranking-table-body');
+            rankingBody.innerHTML = '';
+            data.ranking.forEach(item => {
+                let statusColor = 'text-oracle-green';
+                if (item.status.includes('CRÍTICO')) statusColor = 'text-oracle-red font-bold';
+                else if (item.status.includes('ALERTA')) statusColor = 'text-oracle-yellow';
+
+                rankingBody.innerHTML += `
+                    <tr class="hover:bg-oracle-dark/20 text-xs">
+                        <td class="py-2.5">
+                            <span class="font-bold text-slate-100 block text-[13px]">${item.name}</span>
+                            <span class="text-xs text-oracle-textMuted font-mono text-[12px]">${item.city}</span>
+                        </td>
+                        <td class="text-center font-semibold text-slate-200 text-[13px]">${item.admissions}</td>
+                        <td class="text-center font-semibold text-slate-200 text-[13px]">${item.stay}</td>
+                        <td class="text-right text-xs font-bold ${statusColor} text-[13px]">${item.status}</td>
+                    </tr>
+                `;
+            });
+
+            document.getElementById('cluster-count-1').textContent = data.clusters.c1;
+            document.getElementById('cluster-count-2').textContent = data.clusters.c2;
+            document.getElementById('cluster-count-3').textContent = data.clusters.c3;
+
+            document.getElementById('exp-weight-1').textContent = data.explain.f1;
+            document.getElementById('exp-weight-2').textContent = data.explain.f2;
+            document.getElementById('exp-weight-3').textContent = data.explain.f3;
+
+            document.getElementById('exp-bar-1').style.width = `${data.explain.f1Val}%`;
+            document.getElementById('exp-bar-2').style.width = `${data.explain.f2Val}%`;
+            document.getElementById('exp-bar-3').style.width = `${data.explain.f3Val}%`;
+
+            document.getElementById('exp-insight-text').textContent = data.explain.text;
+
+            showToast(`Sazonalidade atualizada para ${seasonName}.`, "fa-solid fa-calendar-check text-oracle-blue");
+        }
+
+        function selectRegion(regionName, textStatus) {
+            document.getElementById('selected-region-text').innerHTML = `${regionName} - <strong class="text-oracle-blue">${textStatus}</strong>`;
+            showToast(`Região Selecionada: ${regionName}`, "fa-solid fa-map-pin text-oracle-blue");
+        }
+
+        function usePresetQuery(queryText) {
+            document.getElementById('ai-query-input').value = queryText;
+            executeQuery();
+        }
+
+        function executeQuery() {
+            const query = document.getElementById('ai-query-input').value.trim();
+            if (!query) {
+                showToast("Por favor, digite ou selecione uma consulta.", "fa-solid fa-triangle-exclamation text-oracle-yellow");
+                return;
+            }
+
+            const outputArea = document.getElementById('ai-output-area');
+            const statusElem = document.getElementById('ai-status');
+
+            statusElem.textContent = "PROCESSANDO...";
+            statusElem.className = "text-xs font-mono text-oracle-yellow animate-pulse";
+
+            outputArea.innerHTML = `
+                <div class="flex items-center gap-2 text-oracle-yellow animate-pulse text-xs">
+                    <i class="fa-solid fa-spinner animate-spin"></i>
+                    <span>Traduzindo Linguagem Natural em consulta SQL OCI...</span>
+                </div>
+            `;
+
+            setTimeout(() => {
+                statusElem.textContent = "RETORNADO";
+                statusElem.className = "text-xs font-mono text-oracle-green";
+
+                let sqlResult = "";
+                let tableHeader = "";
+                let tableRows = "";
+
+                if (query.toLowerCase().includes('tempo') || query.toLowerCase().includes('alocação') || query.toLowerCase().includes('alocacao')) {
+                    sqlResult = `SELECT stage_name, avg_duration_min, alert_level, target_sla_min FROM pipeline_stages WHERE hospital_id = 'HSP-01' ORDER BY avg_duration_min DESC;`;
+                    tableHeader = `<tr><th class="text-left pb-1.5 text-oracle-blue font-bold text-[13px]">ETAPA ASSISTENCIAL</th><th class="text-center pb-1.5 text-oracle-blue font-bold text-[13px]">MÉDIA REAL</th><th class="text-center pb-1.5 text-oracle-blue font-bold text-[13px]">SLA ACORDADO</th><th class="text-right pb-1.5 text-oracle-blue font-bold text-[13px]">STATUS GARGALO</th></tr>`;
+                    tableRows = `
+                        <tr class="text-xs"><td class="py-2 font-semibold text-slate-200 text-[13px]">1. Alocação de Leitos</td><td class="text-center text-oracle-red font-bold text-[13px]">120 min</td><td class="text-center text-slate-400 text-[13px]">30 min</td><td class="text-right text-oracle-red font-bold text-[13px]">🔴 RETENÇÃO</td></tr>
+                        <tr class="text-xs"><td class="py-2 font-semibold text-slate-200 text-[13px]">2. Alta & Desospitalização</td><td class="text-center text-[13px]">30 min</td><td class="text-center text-slate-400 text-[13px]">45 min</td><td class="text-right text-oracle-blue font-bold text-[13px]">🟢 ESTÁVEL</td></tr>
+                        <tr class="text-xs"><td class="py-2 font-semibold text-slate-200 text-[13px]">3. Atendimento Médico</td><td class="text-center text-[13px]">18 min</td><td class="text-center text-slate-400 text-[13px]">20 min</td><td class="text-right text-oracle-green font-bold text-[13px]">🟢 NORMAL</td></tr>
+                        <tr class="text-xs"><td class="py-2 font-semibold text-slate-200 text-[13px]">4. Triagem & Acolhimento</td><td class="text-center text-[13px]">8 min</td><td class="text-center text-slate-400 text-[13px]">15 min</td><td class="text-right text-oracle-green font-bold text-[13px]">🟢 NORMAL</td></tr>
+                    `;
+                } else if (query.toLowerCase().includes('pico') || query.toLowerCase().includes('município') || query.toLowerCase().includes('municipio') || query.toLowerCase().includes('inverno')) {
+                    sqlResult = `SELECT city_name, hospital_name, admissions_count, target_limit_cnes, current_occupancy_rate FROM datastus_regional WHERE season = 'Inverno' ORDER BY admissions_count DESC;`;
+                    tableHeader = `<tr><th class="text-left pb-1.5 text-oracle-blue font-bold text-[13px]">MUNICÍPIO / UNIDADE</th><th class="text-center pb-1.5 text-oracle-blue font-bold text-[13px]">INTERN. (MÊS)</th><th class="text-center pb-1.5 text-oracle-blue font-bold text-[13px]">LIMITE CNES</th><th class="text-right pb-1.5 text-oracle-blue font-bold text-[13px]">OCUPAÇÃO (%)</th></tr>`;
+                    tableRows = `
+                        <tr class="text-xs"><td class="py-2 font-semibold text-slate-200 text-[13px]">São Paulo (Regional Metro)</td><td class="text-center text-oracle-red font-bold text-[13px]">520</td><td class="text-center text-[13px]">450</td><td class="text-right text-oracle-red font-bold text-[13px]">115%</td></tr>
+                        <tr class="text-xs"><td class="py-2 font-semibold text-slate-200 text-[13px]">São Bernardo (Hosp. Criança)</td><td class="text-center text-oracle-red font-bold text-[13px]">410</td><td class="text-center text-[13px]">380</td><td class="text-right text-oracle-red font-bold text-[13px]">107%</td></tr>
+                        <tr class="text-xs"><td class="py-2 font-semibold text-slate-200 text-[13px]">Guarulhos (Urgência Norte)</td><td class="text-center text-oracle-yellow font-bold text-[13px]">280</td><td class="text-center text-[13px]">300</td><td class="text-right text-oracle-yellow font-bold text-[13px]">93%</td></tr>
+                        <tr class="text-xs"><td class="py-2 font-semibold text-slate-200 text-[13px]">Campinas (Regional Interior)</td><td class="text-center text-[13px]">210</td><td class="text-center text-[13px]">400</td><td class="text-right text-oracle-green font-bold text-[13px]">52%</td></tr>
+                    `;
+                } else {
+                    sqlResult = `SELECT hospital_name, stay_days, occupancy_rate, region_zone FROM datastus_analytics WHERE stay_days > 5.0 ORDER BY stay_days DESC;`;
+                    tableHeader = `<tr><th class="text-left pb-1.5 text-oracle-blue font-bold text-[13px]">HOSPITAL DA REDE</th><th class="text-center pb-1.5 text-oracle-blue font-bold text-[13px]">ESTADIA (DIAS)</th><th class="text-center pb-1.5 text-oracle-blue font-bold text-[13px]">ZONA REGIONAL</th><th class="text-right pb-1.5 text-oracle-blue font-bold text-[13px]">OCUPAÇÃO (%)</th></tr>`;
+                    tableRows = `
+                        <tr class="text-xs"><td class="py-2 font-semibold text-slate-200 text-[13px]">Hosp. Infantil da Criança</td><td class="text-center text-oracle-red font-bold text-[13px]">9.2 dias</td><td class="text-center text-[13px]">Leste Metro</td><td class="text-right text-oracle-red font-bold text-[13px]">94%</td></tr>
+                        <tr class="text-xs"><td class="py-2 font-semibold text-slate-200 text-[13px]">Hosp. Regional Metropolitano</td><td class="text-center text-oracle-red font-bold text-[13px]">8.5 dias</td><td class="text-center text-[13px]">Centro Metro</td><td class="text-right text-oracle-red font-bold text-[13px]">91%</td></tr>
+                        <tr class="text-xs"><td class="py-2 font-semibold text-slate-200 text-[13px]">Pronto Atendimento Norte</td><td class="text-center text-oracle-yellow font-bold text-[13px]">5.1 dias</td><td class="text-center text-[13px]">Norte Interior</td><td class="text-right text-oracle-yellow font-bold text-[13px]">78%</td></tr>
+                    `;
+                }
+
+                outputArea.innerHTML = `
+                    <div class="space-y-3 text-xs">
+                        <div class="text-emerald-400">
+                            <span class="text-oracle-textMuted font-bold">&gt; QUERY SQL GERADA:</span>
+                            <pre class="bg-oracle-dark p-2.5 rounded-lg border border-oracle-border text-xs text-slate-300 mt-1.5 whitespace-pre-wrap font-mono text-[13px]">${sqlResult}</pre>
+                        </div>
+                        <div class="text-slate-300">
+                            <span class="text-oracle-textMuted block mb-1.5 font-bold">&gt; RETORNO DE METADADOS SEGUROS (ORACLE OCI):</span>
+                            <table class="w-full text-xs border-collapse">
+                                <thead>${tableHeader}</thead>
+                                <tbody class="divide-y divide-oracle-border/40">${tableRows}</tbody>
+                            </table>
+                        </div>
+                        <div class="text-xs text-oracle-textMuted pt-2 border-t border-oracle-border/40 flex justify-between text-[11px]">
+                            <span>Sessão segura criptografada</span>
+                            <span>Tempo de retorno: 18ms</span>
+                        </div>
+                    </div>
+                `;
+
+                showToast("Select AI retornou os dados com sucesso!", "fa-solid fa-circle-check text-oracle-green");
+
+            }, 800);
+        }
+
+        function updateTopBarStats() {
+            const gargalos = beds.filter(b => b.complexityLevel === 3 && !b.currentNurse).length;
+            document.getElementById('gargalo-count').textContent = `${gargalos} Setor${gargalos !== 1 ? 'es' : ''}`;
+
+            document.getElementById('tab1-uti-cap').textContent = `${beds.filter(b => b.sector === 'UTI' && b.currentNurse).length} / ${beds.filter(b => b.sector === 'UTI').length} Leitos Ativos`;
+            document.getElementById('tab1-ped-cap').textContent = `${beds.filter(b => b.sector === 'PED' && b.currentNurse).length} / ${beds.filter(b => b.sector === 'PED').length} Leitos Ativos`;
+            document.getElementById('tab1-ps-cap').textContent = `${beds.filter(b => b.sector === 'PS' && b.currentNurse).length} / ${beds.filter(b => b.sector === 'PS').length} Leitos Ativos`;
+
+            const occupied = beds.filter(b => b.currentNurse).length;
+            const occupancyRate = Math.round((occupied / beds.length) * 100);
+            document.getElementById('total-occupancy').textContent = `${occupancyRate}%`;
+
+            const rate = totalDecisions > 0 ? Math.round((approvedDecisions / totalDecisions) * 100) : 100;
+            const rateElem = document.getElementById('conformity-rate');
+            rateElem.textContent = `${rate}%`;
+
+            if (rate < 60) {
+                rateElem.className = 'font-bold text-oracle-red text-xs';
+            } else if (rate < 80) {
+                rateElem.className = 'font-bold text-oracle-yellow text-xs';
+            } else {
+                rateElem.className = 'font-bold text-oracle-green text-xs';
+            }
+
+            const pendingCount = recommendations.filter(r => r.status === 'Pendente').length;
+            document.getElementById('rec-pending-count').textContent = `${pendingCount} Aguardando`;
+        }
+
+        function simulatePatientInflow(complexityLabel) {
+            const emptyBeds = beds.filter(b => !b.currentNurse);
+            if (emptyBeds.length === 0) {
+                showToast("Não há leitos disponíveis para simular a triagem!", "fa-solid fa-circle-exclamation text-oracle-red");
+                return;
+            }
+
+            const chosenBed = emptyBeds[Math.floor(Math.random() * emptyBeds.length)];
+            const isCritical = complexityLabel.includes('Alta');
+            
+            chosenBed.complexity = complexityLabel;
+            chosenBed.complexityLevel = isCritical ? 3 : 2;
+
+            const availableProfs = [...professionals].sort((a, b) => b.prontidao - a.prontidao);
+            const bestProf = availableProfs[0];
+
+            const newRecId = `rec_${Date.now()}`;
+            const newRecommendation = {
+                id: newRecId,
+                bedId: chosenBed.id,
+                sector: chosenBed.sector,
+                complexity: complexityLabel,
+                reason: `Entrada triada no Leito ${chosenBed.id}. O algoritmo identificou que ${bestProf.name} possui a escala mais equilibrada (${bestProf.hours}h).`,
+                suggestedProfId: bestProf.id,
+                status: 'Pendente'
+            };
+
+            recommendations.unshift(newRecommendation);
+            showToast(`API: Evento de Triagem capturado!`, "fa-solid fa-rss text-oracle-blue");
+
+            if (activeTab === 'jornada-tab' || activeTab === 'oracle-tab') {
+                showToast("Gargalo gerado! Alterne para o Módulo Balance para resolver.", "fa-solid fa-scale-balanced text-oracle-yellow");
+            }
+
+            renderBeds();
+            renderRecommendations();
+            updateTopBarStats();
+        }
+
+        function renderRecommendations() {
+            const container = document.getElementById('decision-feed');
+            if (!container) return;
+            container.innerHTML = '';
+
+            const pendingRecs = recommendations.filter(r => r.status === 'Pendente');
+
+            if (pendingRecs.length === 0) {
+                container.innerHTML = `
+                    <div class="flex flex-col items-center justify-center text-center py-12 text-oracle-textMuted flex-1">
+                        <i class="fa-solid fa-circle-check text-4xl text-oracle-green mb-3"></i>
+                        <span class="text-sm font-semibold text-slate-300">Tudo sob Controle</span>
+                        <span class="text-xs max-w-[200px] mt-1">Nenhuma recomendação assistencial pendente de aprovação.</span>
+                    </div>
+                `;
+                return;
+            }
+
+            pendingRecs.forEach(rec => {
+                const prof = professionals.find(p => p.id === rec.suggestedProfId);
+                const isHigh = rec.complexity.includes('Alta');
+                const badgeColor = isHigh ? 'bg-red-500/10 text-red-400 border-red-500/20' : 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20';
+
+                const cardHtml = `
+                    <div class="bg-oracle-dark/70 border border-oracle-border rounded-xl p-4 flex flex-col gap-3 hover:border-oracle-blue/30 transition-all text-sm">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-2">
+                                <span class="text-sm font-black px-2 py-0.5 rounded-md bg-oracle-accent border border-oracle-blue/20">Leito ${rec.bedId}</span>
+                                <span class="text-xs uppercase font-bold text-oracle-textMuted">${rec.sector}</span>
+                            </div>
+                            <span class="text-xs font-bold px-2 py-0.5 rounded-full border ${badgeColor}">${rec.complexity}</span>
+                        </div>
+
+                        <p class="text-sm text-oracle-textMuted leading-relaxed">${rec.reason}</p>
+
+                        <div class="flex items-center gap-2.5 bg-oracle-card p-2.5 rounded-lg border border-oracle-border">
+                            <div class="w-8 h-8 rounded-lg bg-oracle-blue/10 border border-oracle-blue/20 text-oracle-blue flex items-center justify-center font-bold text-xs">
+                                ${prof ? prof.initials : '??'}
+                            </div>
+                            <div>
+                                <span class="block text-sm font-bold text-slate-200">${prof ? prof.name : 'Não Alocado'}</span>
+                                <span class="text-xs text-oracle-textMuted flex items-center gap-1.5">
+                                    Prontidão: 
+                                    <strong class="${prof && prof.prontidao > 70 ? 'text-oracle-green' : 'text-oracle-yellow'}">${prof ? prof.prontidao : 0}%</strong>
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-2 mt-1">
+                            <button onclick="rejectRecommendation('${rec.id}')" class="px-3 py-2 border border-oracle-red/30 bg-red-950/10 hover:bg-red-950/20 text-oracle-red text-xs font-bold rounded-lg transition-all flex items-center justify-center gap-1.5">
+                                <i class="fa-solid fa-xmark"></i> Negar / Trocar
+                            </button>
+                            <button onclick="approveRecommendation('${rec.id}')" class="px-3 py-2 bg-oracle-green/20 hover:bg-oracle-green/30 text-oracle-green border border-oracle-green/30 text-xs font-bold rounded-lg transition-all flex items-center justify-center gap-1.5">
+                                <i class="fa-solid fa-check"></i> Aprovar Escala
+                            </button>
+                        </div>
+                    </div>
+                `;
+                container.innerHTML += cardHtml;
+            });
+        }
+
+        function approveRecommendation(recId) {
+            const recIndex = recommendations.findIndex(r => r.id === recId);
+            if (recIndex === -1) return;
+
+            const rec = recommendations[recIndex];
+            const bed = beds.find(b => b.id === rec.bedId);
+            const prof = professionals.find(p => p.id === rec.suggestedProfId);
+
+            if (bed && prof) {
+                bed.currentNurse = prof.name;
+                prof.fatigue = Math.min(100, prof.fatigue + (rec.complexity.includes('Alta') ? 15 : 8));
+                prof.prontidao = Math.max(0, 100 - prof.fatigue);
+                prof.hours += 12;
+            }
+
+            recommendations[recIndex].status = 'Aprovado';
+            totalDecisions += 1;
+            approvedDecisions += 1;
+
+            showToast(`Escala de ${prof.name} aprovada!`, "fa-solid fa-circle-check text-oracle-green");
+
+            renderBeds();
+            renderRecommendations();
+            renderProfessionals();
+            updateTopBarStats();
+        }
+
+        function rejectRecommendation(recId) {
+            document.getElementById('reject-rec-id').value = recId;
+            document.getElementById('reject-reason').value = "";
+            document.getElementById('reject-desc').value = "";
+            
+            const modal = document.getElementById('reject-modal');
+            modal.classList.remove('opacity-0', 'pointer-events-none');
+            modal.querySelector('.bg-oracle-card').classList.remove('scale-95');
+        }
+
+        function closeRejectModal() {
+            const modal = document.getElementById('reject-modal');
+            modal.classList.add('opacity-0', 'pointer-events-none');
+            modal.querySelector('.bg-oracle-card').classList.add('scale-95');
+        }
+
+        function submitRejection(e) {
+            e.preventDefault();
+            const recId = document.getElementById('reject-rec-id').value;
+            const reason = document.getElementById('reject-reason').value;
+            const desc = document.getElementById('reject-desc').value;
+
+            const recIndex = recommendations.findIndex(r => r.id === recId);
+            if (recIndex !== -1) {
+                recommendations[recIndex].status = 'Rejeitado';
+                recommendations[recIndex].justification = reason + (desc ? ` - ${desc}` : '');
+                totalDecisions += 1;
+
+                showToast("Justificativa registrada com sucesso.", "fa-solid fa-brain text-oracle-yellow");
+            }
+
+            closeRejectModal();
+            renderRecommendations();
+            updateTopBarStats();
+        }
+
+        function filterBeds(sector) {
+            currentSectorFilter = sector;
+            const buttons = ['all', 'uti', 'ped', 'ps'];
+            buttons.forEach(b => {
+                const btn = document.getElementById(`filter-${b}`);
+                if (!btn) return;
+                if (b === sector.toLowerCase() || (b === 'all' && sector === 'TODOS')) {
+                    btn.className = "px-3 py-1.5 rounded-lg bg-oracle-blue text-white font-medium hover:bg-blue-600 transition-all";
+                } else {
+                    btn.className = "px-3 py-1.5 rounded-lg bg-oracle-dark/60 text-oracle-textMuted border border-oracle-border hover:border-oracle-blue hover:text-white transition-all";
+                }
+            });
+            renderBeds();
+        }
+
+        function renderBeds() {
+            const container = document.getElementById('beds-grid');
+            if (!container) return;
+            container.innerHTML = '';
+
+            const filteredBeds = currentSectorFilter === 'TODOS' 
+                ? beds 
+                : beds.filter(b => b.sector === currentSectorFilter);
+
+            filteredBeds.forEach(bed => {
+                let badgeColor = 'bg-oracle-green';
+                let borderColor = 'border-oracle-border';
+
+                if (bed.complexityLevel === 3) {
+                    badgeColor = 'bg-oracle-red';
+                    borderColor = 'border-oracle-red/40';
+                } else if (bed.complexityLevel === 2) {
+                    badgeColor = 'bg-oracle-yellow';
+                    borderColor = 'border-oracle-yellow/40';
+                }
+
+                const cardHtml = `
+                    <div class="bg-oracle-dark/40 border ${borderColor} rounded-xl p-3 flex flex-col justify-between hover:border-oracle-blue/40 transition-all cursor-pointer min-h-[9rem] py-4" onclick="showBedAlert(${bed.id})">
+                        <div class="flex justify-between items-start">
+                            <span class="text-xs font-bold text-slate-200">${bed.label}</span>
+                            <span class="w-2 h-2 rounded-full ${badgeColor}"></span>
+                        </div>
+                        <div class="mt-2">
+                            <span class="text-[9px] text-oracle-textMuted block uppercase font-medium tracking-wide">${bed.sector}</span>
+                            <span class="text-[10px] font-semibold truncate block mt-0.5 ${bed.currentNurse ? 'text-slate-300' : 'text-oracle-red font-bold'}">
+                                <i class="fa-solid fa-user-nurse text-[9px] mr-1"></i>
+                                ${bed.currentNurse ? bed.currentNurse : 'Não Alocado'}
+                            </span>
+                        </div>
+                    </div>
+                `;
+                container.innerHTML += cardHtml;
+            });
+        }
+
+        function showBedAlert(bedId) {
+            const bed = beds.find(b => b.id === bedId);
+            if (!bed) return;
+            
+            if (bed.currentNurse) {
+                showToast(`Leito ${bed.id} está sob responsabilidade de ${bed.currentNurse}.`, "fa-solid fa-circle-info text-oracle-blue");
+            } else {
+                showToast(`Leito ${bed.id} necessita de alocação imediata (${bed.complexity})!`, "fa-solid fa-circle-exclamation text-oracle-red");
+            }
+        }
+
+        function renderProfessionals() {
+            const container = document.getElementById('professionals-list');
+            if (!container) return;
+            container.innerHTML = '';
+
+            professionals.forEach(prof => {
+                let prontidaoColor = 'text-oracle-green';
+                let barColor = 'bg-oracle-green';
+
+                if (prof.prontidao < 40) {
+                    prontidaoColor = 'text-oracle-red';
+                    barColor = 'bg-oracle-red';
+                } else if (prof.prontidao < 70) {
+                    prontidaoColor = 'text-oracle-yellow';
+                    barColor = 'bg-oracle-yellow';
+                }
+
+                const cardHtml = `
+                    <div onclick="openDrawer(${prof.id})" class="bg-oracle-dark/40 border border-oracle-border hover:border-oracle-blue/30 p-3 rounded-xl flex flex-col gap-2 transition-all cursor-pointer hover:bg-oracle-accent/15 group text-sm">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-2">
+                                <div class="w-7 h-7 rounded-lg bg-oracle-accent/50 border border-oracle-blue/20 text-slate-200 flex items-center justify-center font-bold text-xs group-hover:bg-oracle-blue/20 transition-all">
+                                    ${prof.initials}
+                                </div>
+                                <div>
+                                    <span class="block text-sm font-bold text-slate-200 group-hover:text-oracle-blue transition-all">${prof.name}</span>
+                                    <span class="text-xs text-oracle-textMuted">${prof.role}</span>
+                                </div>
+                            </div>
+                            <span class="text-sm font-black ${prontidaoColor} font-mono">${prof.prontidao}%</span>
+                        </div>
+
+                        <div>
+                            <div class="flex justify-between text-xs text-oracle-textMuted mb-1">
+                                <span>Estresse / Fadiga</span>
+                                <span class="font-mono">${prof.fatigue}%</span>
+                            </div>
+                            <div class="w-full bg-oracle-dark rounded-full h-1">
+                                <div class="${barColor} h-1 rounded-full transition-all duration-500" style="width: ${prof.fatigue}%"></div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                container.innerHTML += cardHtml;
+            });
+        }
+
+        function openDrawer(profId) {
+            const prof = professionals.find(p => p.id === profId);
+            if (!prof) return;
+
+            document.getElementById('drawer-avatar').textContent = prof.initials;
+            document.getElementById('drawer-name').textContent = prof.name;
+            document.getElementById('drawer-role').textContent = prof.role;
+            document.getElementById('drawer-gauge-value').textContent = `${prof.prontidao}%`;
+            document.getElementById('drawer-hours').textContent = `${prof.hours}h / 44h`;
+            document.getElementById('drawer-nights').textContent = `${prof.nights} consecutivo${prof.nights !== 1 ? 's' : ''}`;
+            document.getElementById('drawer-rest-time').textContent = `${prof.rest} horas`;
+
+            const riskElem = document.getElementById('drawer-burnout-risk');
+            riskElem.textContent = prof.burnout;
+            if (prof.burnout === 'ALTO') {
+                riskElem.className = "font-bold text-oracle-red px-2 py-0.5 rounded-full bg-red-950/20 border border-red-500/20 text-xs";
+            } else if (prof.burnout === 'MODERADO') {
+                riskElem.className = "font-bold text-oracle-yellow px-2 py-0.5 rounded-full bg-yellow-950/20 border border-oracle-yellow/20 text-xs";
+            } else {
+                riskElem.className = "font-bold text-oracle-green px-2 py-0.5 rounded-full bg-emerald-950/20 border border-emerald-500/20 text-xs";
+            }
+
+            const descElem = document.getElementById('drawer-gauge-desc');
+            const labelElem = document.getElementById('drawer-gauge-label');
+            if (prof.prontidao > 70) {
+                labelElem.textContent = 'Ideal';
+                labelElem.className = 'block text-xs text-oracle-green font-medium uppercase mt-0.5';
+                descElem.textContent = `Equilíbrio excelente. Menos de 30h trabalhadas essa semana e tempo de descanso ideal.`;
+            } else if (prof.prontidao > 40) {
+                labelElem.textContent = 'Alerta';
+                labelElem.className = 'block text-xs text-oracle-yellow font-medium uppercase mt-0.5';
+                descElem.textContent = `Atenção. Próximo ao limite de horas semanais (${prof.hours}h) ou necessitando de maior descanso.`;
+            } else {
+                labelElem.textContent = 'Fadiga';
+                labelElem.className = 'block text-xs text-oracle-red font-medium uppercase mt-0.5';
+                descElem.textContent = `Crítico! Alto risco de sobrecarga. Recomenda-se remanejamento operacional imediato.`;
+            }
+
+            const strokeDashoffset = 339.29 - (339.29 * prof.prontidao) / 100;
+            const strokeCircle = document.getElementById('drawer-gauge-stroke');
+            strokeCircle.style.strokeDashoffset = strokeDashoffset;
+            
+            if (prof.prontidao > 70) {
+                strokeCircle.setAttribute('stroke', '#10B981');
+            } else if (prof.prontidao > 40) {
+                strokeCircle.setAttribute('stroke', '#F59E0B');
+            } else {
+                strokeCircle.setAttribute('stroke', '#EF4444');
+            }
+
+            const timelineContainer = document.getElementById('drawer-timeline');
+            timelineContainer.innerHTML = '';
+            prof.history.forEach(item => {
+                timelineContainer.innerHTML += `
+                    <div class="flex items-center gap-2.5 text-xs">
+                        <div class="w-1.5 h-1.5 rounded-full bg-oracle-blue"></div>
+                        <span class="text-slate-300 font-medium text-sm">${item}</span>
+                    </div>
+                `;
+            });
+
+            const drawer = document.getElementById('profile-drawer');
+            const content = document.getElementById('drawer-content');
+            
+            drawer.classList.remove('pointer-events-none', 'opacity-0');
+            content.classList.remove('translate-x-full');
+        }
+
+        function closeDrawer() {
+            const drawer = document.getElementById('profile-drawer');
+            const content = document.getElementById('drawer-content');
+            
+            drawer.classList.add('pointer-events-none', 'opacity-0');
+            content.classList.add('translate-x-full');
+        }
+
+        document.getElementById('profile-drawer').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeDrawer();
+            }
+        });
+
+        function showToast(msg, iconClass = 'fa-solid fa-info text-oracle-blue') {
+            const toast = document.getElementById('toast');
+            const toastMsg = document.getElementById('toast-msg');
+            const toastIcon = document.getElementById('toast-icon');
+            
+            toastMsg.textContent = msg;
+            toastIcon.innerHTML = `<i class="${iconClass}"></i>`;
+            
+            toast.classList.remove('translate-y-24', 'opacity-0', 'pointer-events-none');
+            
+            setTimeout(() => {
+                toast.classList.add('translate-y-24', 'opacity-0', 'pointer-events-none');
+            }, 3500);
+        }
+
+        window.onload = function() {
+            // Inicializar aba padrão segura
+            switchTab('jornada-tab');
+            updateTopBarStats();
+            showToast("Portal Integrado Synapse Health Iniciado!", "fa-solid fa-brain text-oracle-blue");
+        }
+    </script>
+</body>
+</html>
