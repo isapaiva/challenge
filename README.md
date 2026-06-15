@@ -28,3 +28,36 @@ Certifique-se de ter o **Python 3.x** instalado em sua máquina.
    ```bash
    git clone [https://github.com/seu-usuario/synapse-health-portal.git](https://github.com/seu-usuario/synapse-health-portal.git)
    cd synapse-health-portal
+   ```
+
+2. **Instale o Flask**
+O projeto utiliza apenas o Flask como dependência de backend (o design e os ícones são carregados via CDN do Tailwind CSS e FontAwesome).
+   ```bash
+   pip install flask
+   ```
+
+3. **Inicie o servidor:**
+Execute o script Python principal:
+   ```bash
+   python app.py
+   ```
+
+4. **Acesse no navegador:**
+Abra o seu navegador e acesse o endereço local gerado pelo Flask:
+   [http://127.0.0.1:5000](http://127.0.0.1:5000)
+
+---
+
+## 🧠 Estrutura de Arquivos
+
+```text
+synapse-health-portal/
+├── app.py             # Código do servidor Flask (Backend)
+├── README.md          # Documentação do projeto
+└── templates/         # Pasta contendo a camada de visualização (Frontend)
+    └── prot_integrado_synapse_health.html
+```
+
+## ⚖️ Conformidade e Privacidade
+Em total alinhamento com a Lei Geral de Proteção de Dados (LGPD), este ecossistema prioriza a segurança estrutural de dados de saúde, limitando o escopo analítico a metadados de leitos físicos e fluxos operacionais, sem armazenamento ou manipulação de histórico clínico individual
+
